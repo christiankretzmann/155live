@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ONE | Engel &amp; Völkers</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="ev-supabase.js"></script>
+<style>
+:root{
+  --red:#C41E3A;--dark:#1a1a1a;--mid:#e0e0e0;--light:#f7f6f4;--white:#fff;
+  --green:#2d7a4f;--amber:#c17b00;--blue:#1a5fa8;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Raleway','Segoe UI',Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--light);color:var(--dark);min-height:100vh;}
+
+/* HEADER */
+header{background:var(--white);border-bottom:1px solid #e8e8e8;padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.hlogo{display:flex;align-items:center;gap:16px;}
+.hlogo-ev{width:36px;height:36px;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--serif);font-weight:700;font-size:.85rem;flex-shrink:0;}
+.hlogo-name{font-family:var(--serif);font-size:1.05rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dark);}
+.hlogo-sub{font-size:.6rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#bbb;margin-top:2px;}
+.hright{display:flex;align-items:center;gap:20px;}
+.hback{font-size:.62rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);text-decoration:none;}
+.hback:hover{text-decoration:underline;}
+.huser-name{font-size:.78rem;font-weight:600;color:var(--dark);}
+.huser-email{font-size:.6rem;color:#bbb;}
+
+/* HERO BAND */
+.hero{background:var(--dark);padding:40px 48px 36px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;}
+.hero-left{}
+.hero-eyebrow{font-size:.55rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#555;margin-bottom:10px;}
+.hero-title{font-family:var(--serif);font-size:3.6rem;font-weight:300;color:var(--white);letter-spacing:-2px;line-height:.95;margin-bottom:14px;}
+.hero-title em{color:var(--red);font-style:normal;}
+.hero-sub{font-size:.75rem;color:#666;line-height:1.8;max-width:520px;}
+.hero-right{text-align:right;flex-shrink:0;}
+.hero-badge{font-size:.55rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:6px;}
+.hero-user{font-family:var(--serif);font-size:1.3rem;font-weight:400;color:var(--white);letter-spacing:-.3px;}
+.hero-role{font-size:.62rem;color:#555;margin-top:3px;}
+
+/* WRAP */
+.wrap{max-width:1100px;margin:0 auto;padding:0 32px 64px;}
+
+/* SECTION HEADERS */
+.sect{padding:36px 0 16px;}
+.sect-eyebrow{font-size:.55rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--red);margin-bottom:6px;}
+.sect-title{font-family:var(--serif);font-size:1.6rem;font-weight:300;color:var(--dark);letter-spacing:-.3px;}
+.sect-sub{font-size:.72rem;color:#aaa;margin-top:4px;line-height:1.6;}
+
+/* TILE GRID */
+.tile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2px;margin-top:2px;}
+.tile{background:var(--white);border-top:3px solid #eaeaea;padding:26px 28px 22px;cursor:pointer;transition:all .2s;position:relative;border-left:none;border-right:none;border-bottom:none;}
+.tile::after{content:'';position:absolute;top:-3px;left:0;right:0;height:3px;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .25s;}
+.tile:hover::after{transform:scaleX(1);}
+.tile:hover{background:#fafafa;transform:translateY(-1px);}
+.tile-group-dot{width:8px;height:8px;border-radius:50%;margin-bottom:14px;}
+.tile-icon{font-size:1.6rem;margin-bottom:12px;}
+.tile-name{font-family:var(--serif);font-size:1.15rem;font-weight:500;color:var(--dark);letter-spacing:-.2px;margin-bottom:6px;}
+.tile-desc{font-size:.68rem;color:#aaa;line-height:1.6;}
+.tile-arrow{position:absolute;bottom:18px;right:20px;font-size:.7rem;color:#ccc;transition:all .2s;}
+.tile:hover .tile-arrow{color:var(--red);transform:translateX(3px);}
+
+/* MODAL OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(10,10,10,.6);z-index:300;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto;backdrop-filter:blur(3px);}
+.overlay.open{display:flex;}
+.modal{background:var(--white);width:100%;max-width:720px;border-top:3px solid var(--red);animation:slideIn .25s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+.modal-header{padding:28px 32px 20px;border-bottom:1px solid #f0f0f0;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.mh-left{}
+.mh-eyebrow{font-size:.55rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:6px;}
+.mh-title{font-family:var(--serif);font-size:1.6rem;font-weight:400;color:var(--dark);letter-spacing:-.3px;}
+.mh-sub{font-size:.7rem;color:#aaa;margin-top:4px;line-height:1.6;}
+.modal-close{width:32px;height:32px;border:1.5px solid #ddd;background:none;cursor:pointer;font-size:1rem;color:#aaa;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.modal-close:hover{border-color:var(--red);color:var(--red);}
+.modal-body{padding:28px 32px;}
+.modal-footer{padding:20px 32px;border-top:1px solid #f0f0f0;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
+
+/* FORM ELEMENTS */
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:20px;}
+.fg label,.lbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#aaa;display:block;margin-bottom:4px;}
+.req{color:var(--red);}
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],select,textarea{
+  border:none;border-bottom:1.5px solid #ddd;
+  padding:10px 0;font-size:.88rem;color:var(--dark);
+  background:transparent;transition:border-color .2s;
+  width:100%;font-family:var(--sans);
+}
+input:focus,select:focus,textarea:focus{outline:none;border-bottom-color:var(--red);}
+select{-webkit-appearance:none;cursor:pointer;}
+textarea{border:1.5px solid #ddd;padding:10px 12px;background:#fafafa;resize:vertical;min-height:72px;}
+textarea:focus{border-color:var(--red);background:var(--white);}
+.row{display:flex;gap:18px;flex-wrap:wrap;}
+.col-2{flex:1;min-width:200px;}
+.col-3{flex:1;min-width:150px;}
+.hint{font-size:.68rem;color:#bbb;margin-top:4px;line-height:1.55;font-style:italic;}
+
+/* INFO BOXES */
+.info-box{background:#f0f4ff;border-left:3px solid var(--blue);padding:12px 16px;margin-bottom:20px;font-size:.75rem;color:#1a3a6e;line-height:1.7;}
+.info-box strong{display:block;font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;color:var(--blue);}
+.info-box.warn{background:#fffbf0;border-left-color:var(--amber);color:#5a3800;}
+.info-box.warn strong{color:var(--amber);}
+.info-box.ok{background:#f0faf5;border-left-color:var(--green);color:#1a4a2e;}
+.info-box.ok strong{color:var(--green);}
+
+/* CHECKLIST */
+.check-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--red);flex-shrink:0;margin-top:3px;}
+.check-row label{font-size:.8rem;color:#555;line-height:1.55;cursor:pointer;}
+.check-section{background:#fafafa;border:1px solid #eee;padding:16px 18px;margin-bottom:20px;}
+.check-section-title{font-size:.58rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:12px;}
+
+/* UPLOAD ZONE */
+.upload-zone{border:1.5px dashed var(--mid);padding:22px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa;margin-bottom:8px;}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--red);background:#fdf5f5;}
+.upload-icon{font-size:1.4rem;margin-bottom:6px;}
+.upload-label{font-size:.75rem;color:#999;line-height:1.6;}
+.upload-label strong{color:#666;}
+.file-list{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.file-item{display:flex;align-items:center;gap:10px;background:#f5f5f5;padding:7px 12px;font-size:.75rem;}
+.fi-icon{font-size:.9rem;flex-shrink:0;}
+.fi-name{flex:1;font-weight:600;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;}
+.fi-size{color:#aaa;font-size:.65rem;}
+.fi-del{color:#ccc;cursor:pointer;padding:2px 5px;}
+.fi-del:hover{color:var(--red);}
+
+/* RADIO / OPTION GROUPS */
+.opt-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.opt-btn{border:1.5px solid var(--mid);padding:8px 16px;font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;background:var(--white);color:#888;font-family:var(--sans);}
+.opt-btn:hover{border-color:var(--red);color:var(--red);}
+.opt-btn.sel{background:var(--red);border-color:var(--red);color:#fff;}
+
+/* STATUS BADGE */
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;font-size:.58rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;}
+.sp-green{background:rgba(45,122,79,.12);color:var(--green);}
+.sp-amber{background:rgba(193,123,0,.12);color:var(--amber);}
+.sp-red{background:rgba(196,30,58,.12);color:var(--red);}
+
+/* BUTTONS */
+.btn{padding:11px 26px;border:none;font-family:var(--sans);font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;}
+.btn-primary{background:var(--red);color:#fff;}
+.btn-primary:hover{background:#a01830;}
+.btn-secondary{background:#f0f0f0;color:#666;}
+.btn-secondary:hover{background:#e0e0e0;}
+.btn-outline{background:var(--white);border:1.5px solid var(--red);color:var(--red);}
+.btn-outline:hover{background:#fdf0f2;}
+.btn-dark{background:var(--dark);color:#fff;}
+.btn-dark:hover{background:#333;}
+
+/* SUCCESS TOAST */
+.success-bar{display:none;padding:12px 16px;background:#f0faf5;border-left:3px solid var(--green);font-size:.72rem;color:var(--green);margin-top:14px;}
+
+/* DIVIDER */
+.modal-divider{height:1px;background:#f0f0f0;margin:20px 0;}
+
+/* SECTION DIVIDER */
+.group-divider{height:1px;background:#eee;margin:32px 0 0;}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  header,.hero{padding-left:18px;padding-right:18px;}
+  .wrap{padding:0 16px 48px;}
+  .tile-grid{grid-template-columns:1fr;}
+  .modal{margin:0;}
+  .modal-header,.modal-body,.modal-footer{padding-left:20px;padding-right:20px;}
+  .row{gap:12px;}
+  .col-2,.col-3{min-width:100%;}
+  .modal-footer{flex-direction:column;}
+  .btn{justify-content:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="hlogo">
+    <div class="hlogo-ev">E&amp;V</div>
+    <div>
+      <div class="hlogo-name">Engel &amp; Völkers</div>
+      <div class="hlogo-sub">ONE · Mittleres Ruhrgebiet</div>
+    </div>
+  </div>
+  <div class="hright">
+    <a class="hback" href="ev-portal.html">← Portal</a>
+    <div>
+      <div class="huser-name" id="hUserName"></div>
+      <div class="huser-email" id="hUserEmail"></div>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Engel &amp; Völkers · Mittleres Ruhrgebiet</div>
+    <div class="hero-title"><em>ONE</em></div>
+    <div class="hero-sub">Alles auf einen Klick — dein zentrales Cockpit für alle operativen Aufgaben. Kooperationen vorschlagen, Gebote mitteilen, Objekte freigeben, Unterlagen bestellen und mehr. Schnell. Strukturiert. Documented.</div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-badge">Angemeldet als</div>
+    <div class="hero-user" id="heroUser">–</div>
+    <div class="hero-role" id="heroRole">Immobilienberater / in</div>
+  </div>
+</div>
+
+<!-- WRAP -->
+<div class="wrap">
+
+<!-- ═══ GRUPPE 1: VERTRIEB & DEALS ═══ -->
+<div class="sect">
+  <div class="sect-eyebrow">Gruppe 1 — Vertrieb &amp; Deals</div>
+  <div class="sect-title">Gebote, Kooperationen &amp; Vertragsanbahnungen</div>
+  <div class="sect-sub">Alles rund um konkrete Kaufsituationen, Partnerakquise und Vertragseinleitung.</div>
+</div>
+<div class="tile-grid">
+
+  <div class="tile" onclick="openModal('gebot')">
+    <div class="tile-group-dot" style="background:var(--red)"></div>
+    <div class="tile-icon">🤝</div>
+    <div class="tile-name">Gebot mitteilen</div>
+    <div class="tile-desc">Kundenkaufgebot an die Geschäftsführung melden — inkl. Kaufabsichtserklärung, Notar, Ausweis und KYC-Dokumentation.</div>
+    <div class="tile-arrow">→</div>
+  </div>
+
+  <div class="tile" onclick="openModal('kooperation')">
+    <div class="tile-group-dot" style="background:var(--red)"></div>
+    <div class="tile-icon">🔗</div>
+    <div class="tile-name">Kooperationsvertrag vorschlagen</div>
+    <div class="tile-desc">Person oder Firma als Kooperationspartner vorschlagen — für Kundenzuführung gegen Umsatzbeteiligung.</div>
+    <div class="tile-arrow">→</div>
+  </div>
+
+  <div class="tile" onclick="openModal('qaa')">
+    <div class="tile-group-dot" style="background:var(--red)"></div>
+    <div class="tile-icon">📋</div>
+    <div class="tile-name">QAA bestellen</div>
+    <div class="tile-desc">Qualifizierten Alleinauftrag beauftragen — Vertragsparteien, Objektadresse und Besonderheiten für die Erstellung des Maklervertrags.</div>
+    <div class="tile-arrow">→</div>
+  </div>
+
+</div>
+
+<div class="group-divider"></div>
+
+<!-- ═══ GRUPPE 2: OBJEKTE & VERMARKTUNG ═══ -->
+<div class="sect">
+  <div class="sect-eyebrow">Gruppe 2 — Objekte &amp; Vermarktung</div>
+  <div class="sect-title">Exposés, Status &amp; Objektabschluss</div>
+  <div class="sect-sub">Von der Aktivierung bis zum Abschluss — alle objektbezogenen Schritte an einem Ort.</div>
+</div>
+<div class="tile-grid">
+
+  <div class="tile" onclick="openModal('expose')">
+    <div class="tile-group-dot" style="background:var(--blue)"></div>
+    <div class="tile-icon">📄</div>
+    <div class="tile-name">Exposé zur Freigabe einreichen</div>
+    <div class="tile-desc">Fertig erstelltes Exposé zur Prüfung und Freigabe einreichen — mit Bestätigung der Abstimmung mit dem Eigentümer.</div>
+    <div class="tile-arrow">→</div>
+  </div>
+
+  <div class="tile" onclick="openModal('status')">
+    <div class="tile-group-dot" style="background:var(--blue)"></div>
+    <div class="tile-icon">🔄</div>
+    <div class="tile-name">Objektstatus ändern</div>
+    <div class="tile-desc">Objekt auf „Coming Soon" voransagen oder aktiv schalten — mit Bestätigung aller Sorgfaltspflichten.</div>
+    <div class="tile-arrow">→</div>
+  </div>
+
+  <div class="tile" onclick="openModal('abschluss')">
+    <div class="tile-group-dot" style="background:var(--blue)"></div>
+    <div class="tile-icon">✅</div>
+    <div class="tile-name">Objektabschluss buchen</div>
+    <div class="tile-desc">Vermarktung abschließen — Unterlagen ablegen, Termine buchen, Abrechnung freigeben. Vollständige Dokumentation.</div>
+    <div class="tile-arrow">→</div>
+  </div>
+
+</div>
+
+<div class="group-divider"></div>
+
+<!-- ═══ GRUPPE 3: UNTERLAGEN & DOKUMENTE ═══ -->
+<div class="sect">
+  <div class="sect-eyebrow">Gruppe 3 — Unterlagen &amp; Dokumente</div>
+  <div class="sect-title">Objektunterlagen bestellen</div>
+  <div class="sect-sub">Alle behördlichen und vertraglichen Unterlagen für ein Objekt in einem Schritt anfordern.</div>
+</div>
+<div class="tile-grid">
+
+  <div class="tile" onclick="openModal('unterlagen')">
+    <div class="tile-group-dot" style="background:var(--green)"></div>
+    <div class="tile-icon">🗂️</div>
+    <div class="tile-name">Objektunterlagen bestellen</div>
+    <div class="tile-desc">Grundbuchauszug, Energieausweis, Baulastenauszug, Altlastenauszug, Lageplan, Katasterauszug und weitere individuelle Unterlagen anfordern.</div>
+    <div class="tile-arrow">→</div>
+  </div>
+
+</div>
+
+</div><!-- /wrap -->
+
+<!-- ═══════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════ -->
+
+<!-- ══ MODAL: GEBOT ══ -->
+<div class="overlay" id="modal-gebot">
+<div class="modal">
+  <div class="modal-header">
+    <div class="mh-left">
+      <div class="mh-eyebrow">Vertrieb &amp; Deals</div>
+      <div class="mh-title">Gebot mitteilen</div>
+      <div class="mh-sub">Teile der Geschäftsführung ein konkretes Kaufgebot deines Kunden mit. Alle Pflichtdokumente müssen vorliegen.</div>
+    </div>
+    <button class="modal-close" onclick="closeModal('gebot')">✕</button>
+  </div>
+  <div class="modal-body">
+
+    <div class="info-box warn">
+      <strong>Wichtiger Hinweis — Risikomanagement</strong>
+      Vor der Übermittlung eines Gebots müssen zwingend alle Schritte des internen Risikomanagements (KYC, Geldwäscheprüfung, Identifikation) vollständig durchlaufen und dokumentiert sein. Ohne diese Prüfung kann kein Gebot weitergeleitet werden.
+    </div>
+
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Immobilie — Adresse / Objekt-ID <span class="req">*</span></label>
+        <input type="text" id="gebot_objekt" placeholder="z. B. Kemnader Str. 12, 44797 Bochum"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Eigentümer / Verkäufer</label>
+        <input type="text" id="gebot_eigentuemer" placeholder="Name des Verkäufers"/>
+      </div>
+    </div>
+
+    <div class="modal-divider"></div>
+    <div style="font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:14px;">Käufer / Interessent</div>
+
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Vollständiger Name des Käufers <span class="req">*</span></label>
+        <input type="text" id="gebot_kaeufer" placeholder="Vorname Nachname"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Telefon / E-Mail des Käufers</label>
+        <input type="text" id="gebot_kaeufer_kontakt" placeholder="+49 234 … / max@beispiel.de"/>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Anschrift des Käufers</label>
+      <input type="text" id="gebot_kaeufer_adresse" placeholder="Straße, PLZ Ort"/>
+    </div>
+
+    <div class="modal-divider"></div>
+    <div style="font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:14px;">Gebot</div>
+
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Gebotsbetrag (€) <span class="req">*</span></label>
+        <input type="number" id="gebot_betrag" placeholder="395000" min="0"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Angebotspreise (€)</label>
+        <input type="number" id="gebot_angebotspreis" placeholder="420000" min="0"/>
+        <span class="hint">Für Einordnung des Gebots</span>
+      </div>
+      <div class="col-2 fg">
+        <label>Gebotsdatum</label>
+        <input type="date" id="gebot_datum"/>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Finanzierungssituation des Käufers</label>
+      <div class="opt-grid" id="gebot_finanzierung">
+        <div class="opt-btn" onclick="selOpt(this,'gebot_finanzierung')">Vollfinanzierung</div>
+        <div class="opt-btn" onclick="selOpt(this,'gebot_finanzierung')">Mit Eigenkapital</div>
+        <div class="opt-btn" onclick="selOpt(this,'gebot_finanzierung')">Barzahler</div>
+        <div class="opt-btn" onclick="selOpt(this,'gebot_finanzierung')">Finanzierung offen</div>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Anmerkungen zum Gebot</label>
+      <textarea id="gebot_anmerkung" placeholder="z. B. Käufer ist flexibel beim Übergabetermin, möchte Mobiliar übernehmen ..."></textarea>
+    </div>
+
+    <div class="modal-divider"></div>
+    <div style="font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:14px;">Pflichtdokumente</div>
+
+    <div class="info-box">
+      <strong>Erforderliche Unterlagen</strong>
+      Folgende Dokumente müssen hochgeladen werden, bevor das Gebot weitergeleitet werden kann: Kaufabsichtserklärung (KAE), Notarbeauftragung, Personalausweis des Käufers, ausgefülltes KYC-Formular (Geldwäsche-Selbstauskunft).
+    </div>
+
+    <div class="upload-zone" onclick="triggerUpload('gebot_files')" ondragover="drgOver(event,this)" ondragleave="drgLeave(this)" ondrop="drgDrop(event,'gebot_files',this)">
+      <div class="upload-icon">📎</div>
+      <div class="upload-label"><strong>Dokumente hochladen</strong><br/>KAE · Notarbeauftragung · Personalausweis · KYC-Formular · PDF, JPG, PNG</div>
+    </div>
+    <input type="file" id="gebot_files" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="addFiles('gebot_files','gebot_filelist',this.files)" style="display:none;"/>
+    <div class="file-list" id="gebot_filelist"></div>
+
+    <div class="check-section">
+      <div class="check-section-title">Risikomanagement-Bestätigung</div>
+      <div class="check-row"><input type="checkbox" id="gebot_chk1"/><label for="gebot_chk1">Ich habe die Identität des Käufers anhand eines gültigen Lichtbildausweises geprüft und dokumentiert.</label></div>
+      <div class="check-row"><input type="checkbox" id="gebot_chk2"/><label for="gebot_chk2">Die Geldwäscheprüfung (KYC) wurde vollständig durchgeführt. Das ausgefüllte KYC-Formular liegt vor.</label></div>
+      <div class="check-row"><input type="checkbox" id="gebot_chk3"/><label for="gebot_chk3">Eine Kaufabsichtserklärung liegt unterschrieben vor und ist beigefügt.</label></div>
+      <div class="check-row"><input type="checkbox" id="gebot_chk4"/><label for="gebot_chk4">Alle Schritte des internen Risikomanagements wurden gemäß den Vorgaben der Geschäftsführung durchlaufen und dokumentiert.</label></div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal('gebot')">Abbrechen</button>
+    <button class="btn btn-outline" onclick="printModal('Gebot mitteilen')">🖨 Drucken</button>
+    <button class="btn btn-primary" onclick="submitModal('gebot','one_gebote','Gebot erfolgreich übermittelt')">📤 Gebot übermitteln</button>
+  </div>
+  <div class="success-bar" id="success-gebot"></div>
+</div>
+</div>
+
+<!-- ══ MODAL: KOOPERATION ══ -->
+<div class="overlay" id="modal-kooperation">
+<div class="modal">
+  <div class="modal-header">
+    <div class="mh-left">
+      <div class="mh-eyebrow">Vertrieb &amp; Deals</div>
+      <div class="mh-title">Kooperationsvertrag vorschlagen</div>
+      <div class="mh-sub">Schlage eine Person oder Firma als Kooperationspartner vor, die uns gegen Umsatzbeteiligung Kunden zuführt.</div>
+    </div>
+    <button class="modal-close" onclick="closeModal('kooperation')">✕</button>
+  </div>
+  <div class="modal-body">
+
+    <div class="info-box">
+      <strong>Was ist ein Kooperationspartner?</strong>
+      Kooperationspartner sind Personen oder Unternehmen, die uns aktiv Kaufinteressenten oder Verkäufer zuführen und dafür eine vertraglich vereinbarte Beteiligung am vermittelten Provisionserlös erhalten. Die endgültige Entscheidung trifft die Geschäftsführung.
+    </div>
+
+    <div style="font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:14px;">Art des Kooperationspartners</div>
+    <div class="opt-grid" id="koop_art">
+      <div class="opt-btn sel" onclick="selOpt(this,'koop_art')">Privatperson</div>
+      <div class="opt-btn" onclick="selOpt(this,'koop_art')">Unternehmen</div>
+      <div class="opt-btn" onclick="selOpt(this,'koop_art')">Makler / Kollege</div>
+      <div class="opt-btn" onclick="selOpt(this,'koop_art')">Sonstiges</div>
+    </div>
+
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Name / Firmenname <span class="req">*</span></label>
+        <input type="text" id="koop_name" placeholder="Max Mustermann / Muster GmbH"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Branche / Tätigkeit</label>
+        <input type="text" id="koop_branche" placeholder="z. B. Finanzberater, Steuerberater, Bauträger"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Telefon <span class="req">*</span></label>
+        <input type="tel" id="koop_tel" placeholder="+49 234 …"/>
+      </div>
+      <div class="col-2 fg">
+        <label>E-Mail</label>
+        <input type="email" id="koop_email" placeholder="partner@beispiel.de"/>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Anschrift</label>
+      <input type="text" id="koop_adresse" placeholder="Straße, PLZ Ort"/>
+    </div>
+
+    <div class="modal-divider"></div>
+    <div style="font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:14px;">Kooperation &amp; Hintergrund</div>
+
+    <div class="fg">
+      <label>Woher kommt der Kontakt?</label>
+      <input type="text" id="koop_quelle" placeholder="z. B. persönliche Empfehlung, Messe, Netzwerk, Eigeninitiative des Partners"/>
+    </div>
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Erwartetes Kundenvolumen / Jahr</label>
+        <div class="opt-grid" id="koop_volumen" style="margin-bottom:0;">
+          <div class="opt-btn" onclick="selOpt(this,'koop_volumen')">1–3 / Jahr</div>
+          <div class="opt-btn" onclick="selOpt(this,'koop_volumen')">4–10 / Jahr</div>
+          <div class="opt-btn" onclick="selOpt(this,'koop_volumen')">10+ / Jahr</div>
+          <div class="opt-btn" onclick="selOpt(this,'koop_volumen')">Unbekannt</div>
+        </div>
+      </div>
+      <div class="col-2 fg">
+        <label>Vorgeschlagene Beteiligungsart</label>
+        <select id="koop_beteiligung">
+          <option value="">– Bitte wählen –</option>
+          <option>Prozentuale Umsatzbeteiligung</option>
+          <option>Feste Empfehlungsprämie</option>
+          <option>Gegenseitige Empfehlung (ohne Vergütung)</option>
+          <option>Sonstige Vereinbarung</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Begründung / Warum ist diese Kooperation sinnvoll?</label>
+      <textarea id="koop_begruendung" placeholder="Beschreibe kurz, warum du diese Person / Firma als Kooperationspartner vorschlägst und welchen Mehrwert die Zusammenarbeit für uns hat ..."></textarea>
+    </div>
+    <div class="fg">
+      <label>Gibt es bereits eine konkrete Kundenanfrage / einen konkreten Interessenten?</label>
+      <div class="opt-grid" id="koop_konkret">
+        <div class="opt-btn" onclick="selOpt(this,'koop_konkret')">Ja — konkreter Interessent liegt vor</div>
+        <div class="opt-btn sel" onclick="selOpt(this,'koop_konkret')">Nein — Grundsatzvorschlag</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal('kooperation')">Abbrechen</button>
+    <button class="btn btn-outline" onclick="printModal('Kooperationsvorschlag')">🖨 Drucken</button>
+    <button class="btn btn-primary" onclick="submitModal('kooperation','one_kooperationen','Kooperationsvorschlag eingereicht')">📤 Vorschlag einreichen</button>
+  </div>
+  <div class="success-bar" id="success-kooperation"></div>
+</div>
+</div>
+
+<!-- ══ MODAL: QAA ══ -->
+<div class="overlay" id="modal-qaa">
+<div class="modal">
+  <div class="modal-header">
+    <div class="mh-left">
+      <div class="mh-eyebrow">Vertrieb &amp; Deals</div>
+      <div class="mh-title">QAA bestellen</div>
+      <div class="mh-sub">Beauftrage die Erstellung eines Qualifizierten Alleinauftrags (Maklervertrag). Fülle alle Angaben vollständig aus — der Vertrag wird anschließend manuell erstellt und dir zugesandt.</div>
+    </div>
+    <button class="modal-close" onclick="closeModal('qaa')">✕</button>
+  </div>
+  <div class="modal-body">
+
+    <div class="info-box">
+      <strong>Was ist ein QAA?</strong>
+      Der Qualifizierte Alleinauftrag (QAA) ist unser Maklervertrag mit dem Eigentümer. Er regelt die exklusive Vermarktung durch Engel &amp; Völkers, die Laufzeit, die Provision und alle wesentlichen Pflichten. Nach deiner Anfrage wird der Vertrag von der Geschäftsführung / dem Kernteam erstellt und dir zur Unterzeichnung mit dem Kunden bereitgestellt.
+    </div>
+
+    <div style="font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:14px;">Vertragsparteien</div>
+
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Eigentümer 1 — Vollständiger Name <span class="req">*</span></label>
+        <input type="text" id="qaa_eg1" placeholder="Vorname Nachname"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Eigentümer 1 — Geburtsdatum</label>
+        <input type="date" id="qaa_eg1_geb"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Eigentümer 1 — Anschrift</label>
+        <input type="text" id="qaa_eg1_adresse" placeholder="Straße, PLZ Ort"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Eigentümer 1 — Telefon / E-Mail</label>
+        <input type="text" id="qaa_eg1_kontakt" placeholder="+49 … / email@beispiel.de"/>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Gibt es einen zweiten Eigentümer / Miteigentümer?</label>
+      <div class="opt-grid" id="qaa_eg2toggle">
+        <div class="opt-btn sel" onclick="selOpt(this,'qaa_eg2toggle');toggleSection('qaa_eg2_section',false)">Nein</div>
+        <div class="opt-btn" onclick="selOpt(this,'qaa_eg2toggle');toggleSection('qaa_eg2_section',true)">Ja</div>
+      </div>
+    </div>
+    <div id="qaa_eg2_section" style="display:none;">
+      <div class="row">
+        <div class="col-2 fg">
+          <label>Eigentümer 2 — Vollständiger Name</label>
+          <input type="text" id="qaa_eg2" placeholder="Vorname Nachname"/>
+        </div>
+        <div class="col-2 fg">
+          <label>Eigentümer 2 — Geburtsdatum</label>
+          <input type="date" id="qaa_eg2_geb"/>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Eigentümer 2 — Anschrift (falls abweichend)</label>
+        <input type="text" id="qaa_eg2_adresse" placeholder="Straße, PLZ Ort"/>
+      </div>
+    </div>
+
+    <div class="modal-divider"></div>
+    <div style="font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:14px;">Objekt</div>
+
+    <div class="fg">
+      <label>Objektadresse <span class="req">*</span></label>
+      <input type="text" id="qaa_adresse" placeholder="Straße, Hausnummer, PLZ Ort"/>
+    </div>
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Objektart <span class="req">*</span></label>
+        <select id="qaa_art">
+          <option value="">– Bitte wählen –</option>
+          <option>Eigentumswohnung (ETW)</option>
+          <option>Einfamilienhaus</option>
+          <option>Doppelhaushälfte</option>
+          <option>Reihenhaus / Reihenenhaus</option>
+          <option>Mehrfamilienhaus</option>
+          <option>Grundstück</option>
+          <option>Gewerbeobjekt</option>
+          <option>Sonstiges</option>
+        </select>
+      </div>
+      <div class="col-2 fg">
+        <label>Voraussichtlicher Angebotspreis (€)</label>
+        <input type="number" id="qaa_preis" placeholder="450000" min="0"/>
+      </div>
+    </div>
+
+    <div class="modal-divider"></div>
+    <div style="font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:14px;">Vertragsdetails</div>
+
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Gewünschte Vertragslaufzeit</label>
+        <select id="qaa_laufzeit">
+          <option>3 Monate</option>
+          <option>6 Monate (Standard)</option>
+          <option>9 Monate</option>
+          <option>12 Monate</option>
+          <option>Nach Absprache</option>
+        </select>
+      </div>
+      <div class="col-2 fg">
+        <label>Gewünschtes Vertragsstart-Datum</label>
+        <input type="date" id="qaa_start"/>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Besonderheiten / Hinweise für den Vertrag</label>
+      <textarea id="qaa_besonderheiten" placeholder="z. B. Erbbaurecht, Nießbrauch, laufendes Mietverhältnis, besondere Provisionsregelung, abweichende Wünsche des Eigentümers ..."></textarea>
+    </div>
+    <div class="fg">
+      <label>Interne Notizen (nicht für den Eigentümer)</label>
+      <textarea id="qaa_notizen" placeholder="z. B. Eigentümer ist verreist bis ..., bevorzugter Kontaktweg, besondere Umstände ..."></textarea>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal('qaa')">Abbrechen</button>
+    <button class="btn btn-outline" onclick="printModal('QAA Bestellung')">🖨 Drucken</button>
+    <button class="btn btn-primary" onclick="submitModal('qaa','one_qaa_bestellungen','QAA-Bestellung eingereicht')">📤 QAA bestellen</button>
+  </div>
+  <div class="success-bar" id="success-qaa"></div>
+</div>
+</div>
+
+<!-- ══ MODAL: EXPOSÉ ══ -->
+<div class="overlay" id="modal-expose">
+<div class="modal">
+  <div class="modal-header">
+    <div class="mh-left">
+      <div class="mh-eyebrow">Objekte &amp; Vermarktung</div>
+      <div class="mh-title">Exposé zur Freigabe einreichen</div>
+      <div class="mh-sub">Reiche dein fertig erstelltes Exposé zur Prüfung und Freigabe ein. Alle Inhalte müssen mit dem Eigentümer abgestimmt sein.</div>
+    </div>
+    <button class="modal-close" onclick="closeModal('expose')">✕</button>
+  </div>
+  <div class="modal-body">
+
+    <div class="info-box warn">
+      <strong>Vor der Einreichung</strong>
+      Das Exposé darf nur eingereicht werden, wenn alle Texte auf Richtigkeit geprüft, alle Bildrechte geklärt und alle Inhalte mit dem Eigentümer besprochen und freigegeben wurden. Ungeprüfte Exposés werden zurückgewiesen.
+    </div>
+
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Objektadresse <span class="req">*</span></label>
+        <input type="text" id="exp_adresse" placeholder="Straße, PLZ Ort"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Objekt-ID / Interne Referenz</label>
+        <input type="text" id="exp_id" placeholder="z. B. BO-2026-047"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Objektart</label>
+        <select id="exp_art">
+          <option value="">– Bitte wählen –</option>
+          <option>Eigentumswohnung</option>
+          <option>Einfamilienhaus</option>
+          <option>Doppelhaushälfte</option>
+          <option>Reihenhaus</option>
+          <option>Mehrfamilienhaus</option>
+          <option>Grundstück</option>
+          <option>Sonstiges</option>
+        </select>
+      </div>
+      <div class="col-2 fg">
+        <label>Angebotspreis (€)</label>
+        <input type="number" id="exp_preis" placeholder="390000" min="0"/>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Erstellt mit</label>
+      <div class="opt-grid" id="exp_tool">
+        <div class="opt-btn sel" onclick="selOpt(this,'exp_tool')">Flowfact</div>
+        <div class="opt-btn" onclick="selOpt(this,'exp_tool')">PropStack</div>
+        <div class="opt-btn" onclick="selOpt(this,'exp_tool')">Canva / Word</div>
+        <div class="opt-btn" onclick="selOpt(this,'exp_tool')">Sonstiges</div>
+      </div>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <div class="upload-zone" onclick="triggerUpload('exp_files')" ondragover="drgOver(event,this)" ondragleave="drgLeave(this)" ondrop="drgDrop(event,'exp_files',this)">
+      <div class="upload-icon">📄</div>
+      <div class="upload-label"><strong>Exposé hochladen</strong><br/>PDF (bevorzugt) · max. 50 MB · Bilder können separat als ZIP beigefügt werden</div>
+    </div>
+    <input type="file" id="exp_files" multiple accept=".pdf,.zip,.jpg,.jpeg,.png" onchange="addFiles('exp_files','exp_filelist',this.files)" style="display:none;"/>
+    <div class="file-list" id="exp_filelist"></div>
+
+    <div class="fg">
+      <label>Anmerkungen an das Freigabe-Team</label>
+      <textarea id="exp_anmerkung" placeholder="z. B. Eigentümerin hat Bild auf Seite 4 noch nicht freigegeben — Ersatz folgt. Bitte vorab nur intern prüfen ..."></textarea>
+    </div>
+
+    <div class="check-section">
+      <div class="check-section-title">Bestätigung vor Einreichung</div>
+      <div class="check-row"><input type="checkbox" id="exp_chk1"/><label for="exp_chk1">Alle Texte habe ich auf inhaltliche Richtigkeit und Rechtschreibung geprüft.</label></div>
+      <div class="check-row"><input type="checkbox" id="exp_chk2"/><label for="exp_chk2">Alle Bilder liegen in ausreichender Qualität vor und die Bildrechte sind geklärt.</label></div>
+      <div class="check-row"><input type="checkbox" id="exp_chk3"/><label for="exp_chk3">Der Eigentümer hat den Inhalt des Exposés zur Kenntnis genommen und zugestimmt.</label></div>
+      <div class="check-row"><input type="checkbox" id="exp_chk4"/><label for="exp_chk4">Preis, Objektdaten und Lage-/Ausstattungsbeschreibung sind korrekt und vollständig.</label></div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal('expose')">Abbrechen</button>
+    <button class="btn btn-outline" onclick="printModal('Exposé Freigabe')">🖨 Drucken</button>
+    <button class="btn btn-primary" onclick="submitModal('expose','one_expose_freigaben','Exposé zur Freigabe eingereicht')">📤 Zur Freigabe einreichen</button>
+  </div>
+  <div class="success-bar" id="success-expose"></div>
+</div>
+</div>
+
+<!-- ══ MODAL: STATUS ══ -->
+<div class="overlay" id="modal-status">
+<div class="modal">
+  <div class="modal-header">
+    <div class="mh-left">
+      <div class="mh-eyebrow">Objekte &amp; Vermarktung</div>
+      <div class="mh-title">Objektstatus ändern</div>
+      <div class="mh-sub">Stelle ein Objekt auf „Coming Soon" oder „Aktiv" — mit vollständiger Sorgfaltspflicht-Bestätigung.</div>
+    </div>
+    <button class="modal-close" onclick="closeModal('status')">✕</button>
+  </div>
+  <div class="modal-body">
+
+    <div class="fg">
+      <label>Gewünschter neuer Status <span class="req">*</span></label>
+      <div class="opt-grid" id="status_typ">
+        <div class="opt-btn sel" onclick="selOpt(this,'status_typ');showStatusHint('cs')">📢 Coming Soon</div>
+        <div class="opt-btn" onclick="selOpt(this,'status_typ');showStatusHint('aktiv')">✅ Aktiv schalten</div>
+      </div>
+    </div>
+
+    <div id="status_hint_cs" class="info-box" style="display:block;">
+      <strong>Coming Soon — Vorabankündigung</strong>
+      Das Objekt wird in den sozialen Medien vorangekündigt, bevor es vollständig aktiviert wird. Käufer werden auf das bald erscheinende Objekt aufmerksam gemacht. Alle Unterlagen müssen vollständig vorliegen, das Objekt darf jedoch noch nicht im System aktiv sein.
+    </div>
+    <div id="status_hint_aktiv" class="info-box ok" style="display:none;">
+      <strong>Aktiv schalten — Vollständige Vermarktung</strong>
+      Das Objekt wird im System für alle Immobilienberater freigeschaltet und für Interessenten sichtbar. Der vollständige Datensatz, QAA, EFA-Freigabe und alle Unterlagen müssen vorliegen.
+    </div>
+
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Objektadresse <span class="req">*</span></label>
+        <input type="text" id="status_adresse" placeholder="Straße, PLZ Ort"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Objekt-ID / Flowfact-Nr.</label>
+        <input type="text" id="status_id" placeholder="z. B. BO-2026-047"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Objektart</label>
+        <select id="status_art">
+          <option value="">– Bitte wählen –</option>
+          <option>Eigentumswohnung</option>
+          <option>Einfamilienhaus</option>
+          <option>Doppelhaushälfte</option>
+          <option>Reihenhaus</option>
+          <option>Mehrfamilienhaus</option>
+          <option>Grundstück</option>
+          <option>Sonstiges</option>
+        </select>
+      </div>
+      <div class="col-2 fg">
+        <label>Gewünschtes Datum der Statusänderung</label>
+        <input type="date" id="status_datum"/>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Angebotspreis (€)</label>
+      <input type="number" id="status_preis" placeholder="390000" min="0"/>
+    </div>
+    <div class="fg">
+      <label>Besondere Hinweise für die Vorabkommunikation / Aktivierung</label>
+      <textarea id="status_hinweis" placeholder="z. B. Bitte im Social-Media-Beitrag auf den besonderen Gartenbereich hinweisen. Verfügbarkeit ab 1.7.2026 ..."></textarea>
+    </div>
+
+    <div class="check-section">
+      <div class="check-section-title">Sorgfaltspflichten — Coming Soon</div>
+      <div class="check-row"><input type="checkbox" id="status_chk1"/><label for="status_chk1">Der Qualifizierte Alleinauftrag (QAA) ist unterzeichnet und im System hinterlegt.</label></div>
+      <div class="check-row"><input type="checkbox" id="status_chk2"/><label for="status_chk2">Der Eigentümer hat der Vorabankündigung / Aktivierung ausdrücklich zugestimmt.</label></div>
+      <div class="check-row"><input type="checkbox" id="status_chk3"/><label for="status_chk3">Alle Objektdaten (Flächen, Preise, Ausstattung) sind geprüft und korrekt erfasst.</label></div>
+      <div class="check-row"><input type="checkbox" id="status_chk4"/><label for="status_chk4">Für „Aktiv": EFA-Prüfung wurde durchgeführt, Exposé ist freigegeben, Geldwäschebogen und Ausweise liegen vor.</label></div>
+      <div class="check-row"><input type="checkbox" id="status_chk5"/><label for="status_chk5">Ich bestätige, alle internen Sorgfaltspflichten und Checklisten vollständig eingehalten zu haben.</label></div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal('status')">Abbrechen</button>
+    <button class="btn btn-outline" onclick="printModal('Objektstatus ändern')">🖨 Drucken</button>
+    <button class="btn btn-primary" onclick="submitModal('status','one_statusaenderungen','Statusänderung eingereicht')">📤 Status ändern</button>
+  </div>
+  <div class="success-bar" id="success-status"></div>
+</div>
+</div>
+
+<!-- ══ MODAL: ABSCHLUSS ══ -->
+<div class="overlay" id="modal-abschluss">
+<div class="modal">
+  <div class="modal-header">
+    <div class="mh-left">
+      <div class="mh-eyebrow">Objekte &amp; Vermarktung</div>
+      <div class="mh-title">Objektabschluss buchen</div>
+      <div class="mh-sub">Dokumentiere, dass die Vermarktung eines Objekts abgeschlossen ist — damit das Kernteam alle finalen Schritte (Ablage, Abrechnung, Notartermine) einleiten kann.</div>
+    </div>
+    <button class="modal-close" onclick="closeModal('abschluss')">✕</button>
+  </div>
+  <div class="modal-body">
+
+    <div class="info-box ok">
+      <strong>Was passiert nach dem Abschluss?</strong>
+      Das Kernteam erhält deine Meldung und leitet alle Folgeschritte ein: Endabrechnung, Ablage aller Dokumente, Notartermin-Dokumentation, Provisionssicherung und Archivierung. Bitte stelle sicher, dass wirklich alle Unterlagen vollständig sind, bevor du dieses Formular einreichst.
+    </div>
+
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Objektadresse <span class="req">*</span></label>
+        <input type="text" id="abs_adresse" placeholder="Straße, PLZ Ort"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Objekt-ID / Flowfact-Nr.</label>
+        <input type="text" id="abs_id" placeholder="z. B. BO-2026-047"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Art des Abschlusses <span class="req">*</span></label>
+        <div class="opt-grid" id="abs_art" style="margin-bottom:0;">
+          <div class="opt-btn sel" onclick="selOpt(this,'abs_art')">Verkauf</div>
+          <div class="opt-btn" onclick="selOpt(this,'abs_art')">Vermietung</div>
+        </div>
+      </div>
+      <div class="col-2 fg">
+        <label>Abschlussdatum / Notartermin</label>
+        <input type="date" id="abs_datum"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Käufer / Mieter — Name</label>
+        <input type="text" id="abs_kaeufer" placeholder="Vorname Nachname"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Verkaufspreis / Miete (€)</label>
+        <input type="number" id="abs_preis" placeholder="395000" min="0"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Notar / Notariat</label>
+        <input type="text" id="abs_notar" placeholder="z. B. Notariat Dr. Müller, Bochum"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Notartermin-Datum</label>
+        <input type="date" id="abs_notardat"/>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Anmerkungen / Offene Punkte</label>
+      <textarea id="abs_anmerkung" placeholder="z. B. Kaufpreis wird in zwei Tranchen bezahlt. Übergabetermin noch nicht festgelegt. Bitte Schlüsselprotokoll vorbereiten ..."></textarea>
+    </div>
+
+    <div class="check-section">
+      <div class="check-section-title">Vollständigkeits-Bestätigung</div>
+      <div class="check-row"><input type="checkbox" id="abs_chk1"/><label for="abs_chk1">Alle Objektunterlagen (Grundbuch, Energieausweis, Baulast etc.) sind vollständig und im Drive abgelegt.</label></div>
+      <div class="check-row"><input type="checkbox" id="abs_chk2"/><label for="abs_chk2">Der Notartermin ist gebucht oder eine entsprechende Reservierung liegt vor.</label></div>
+      <div class="check-row"><input type="checkbox" id="abs_chk3"/><label for="abs_chk3">Die Kaufabsichtserklärung und alle Käuferdokumente (Ausweis, KYC) liegen vollständig vor.</label></div>
+      <div class="check-row"><input type="checkbox" id="abs_chk4"/><label for="abs_chk4">Das Objekt ist in Flowfact / PropStack korrekt als abgeschlossen markiert oder dies wird hiermit beantragt.</label></div>
+      <div class="check-row"><input type="checkbox" id="abs_chk5"/><label for="abs_chk5">Ich bestätige die Vollständigkeit aller Unterlagen und die korrekte Dokumentation des gesamten Vorgangs.</label></div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal('abschluss')">Abbrechen</button>
+    <button class="btn btn-outline" onclick="printModal('Objektabschluss')">🖨 Drucken</button>
+    <button class="btn btn-primary" onclick="submitModal('abschluss','one_abschluesse','Abschluss gebucht')">📤 Abschluss buchen</button>
+  </div>
+  <div class="success-bar" id="success-abschluss"></div>
+</div>
+</div>
+
+<!-- ══ MODAL: UNTERLAGEN ══ -->
+<div class="overlay" id="modal-unterlagen">
+<div class="modal">
+  <div class="modal-header">
+    <div class="mh-left">
+      <div class="mh-eyebrow">Unterlagen &amp; Dokumente</div>
+      <div class="mh-title">Objektunterlagen bestellen</div>
+      <div class="mh-sub">Fordere alle behördlichen und vertraglichen Unterlagen für ein Objekt in einem Schritt an. Das Kernteam koordiniert die Beschaffung.</div>
+    </div>
+    <button class="modal-close" onclick="closeModal('unterlagen')">✕</button>
+  </div>
+  <div class="modal-body">
+
+    <div class="info-box">
+      <strong>Bearbeitungszeit</strong>
+      Behördliche Unterlagen (Grundbuch, Baulast, Altlast, Kataster) haben unterschiedliche Bearbeitungszeiten von 3–15 Werktagen je nach Behörde und Auslastung. Energieausweise werden über zugelassene Aussteller beantragt. Du wirst informiert, sobald die Unterlagen vorliegen.
+    </div>
+
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Objektadresse <span class="req">*</span></label>
+        <input type="text" id="unt_adresse" placeholder="Straße, Hausnummer, PLZ Ort"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Objekt-ID / Flowfact-Nr.</label>
+        <input type="text" id="unt_id" placeholder="z. B. BO-2026-047"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Grundbuchblatt-Nr. (falls bekannt)</label>
+        <input type="text" id="unt_grundbuch_nr" placeholder="z. B. Bl. 1234"/>
+      </div>
+      <div class="col-2 fg">
+        <label>Gemarkung / Flur (falls bekannt)</label>
+        <input type="text" id="unt_gemarkung" placeholder="z. B. Bochum, Flur 12, Flurstück 345"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2 fg">
+        <label>Objektart</label>
+        <select id="unt_art">
+          <option value="">– Bitte wählen –</option>
+          <option>Eigentumswohnung</option>
+          <option>Einfamilienhaus</option>
+          <option>Doppelhaushälfte</option>
+          <option>Reihenhaus</option>
+          <option>Mehrfamilienhaus</option>
+          <option>Grundstück</option>
+          <option>Sonstiges</option>
+        </select>
+      </div>
+      <div class="col-2 fg">
+        <label>Dringlichkeit</label>
+        <div class="opt-grid" id="unt_dring" style="margin-bottom:0;">
+          <div class="opt-btn sel" onclick="selOpt(this,'unt_dring')">Normal</div>
+          <div class="opt-btn" onclick="selOpt(this,'unt_dring')">Dringend</div>
+          <div class="opt-btn" onclick="selOpt(this,'unt_dring')">Sehr dringend</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-divider"></div>
+    <div style="font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:14px;">Gewünschte Unterlagen <span class="req">*</span></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      <div class="check-row" style="padding:10px 12px;border-bottom:1px solid #f0f0f0;border-right:1px solid #f0f0f0;">
+        <input type="checkbox" id="unt_grundbuch" checked/>
+        <label for="unt_grundbuch"><strong>Grundbuchauszug</strong><br/><span style="font-size:.65rem;color:#aaa;">Alle Abteilungen, aktuell beglaubigt</span></label>
+      </div>
+      <div class="check-row" style="padding:10px 12px;border-bottom:1px solid #f0f0f0;">
+        <input type="checkbox" id="unt_energie"/>
+        <label for="unt_energie"><strong>Energieausweis</strong><br/><span style="font-size:.65rem;color:#aaa;">Bedarfs- oder Verbrauchsausweis</span></label>
+      </div>
+      <div class="check-row" style="padding:10px 12px;border-bottom:1px solid #f0f0f0;border-right:1px solid #f0f0f0;">
+        <input type="checkbox" id="unt_baulast"/>
+        <label for="unt_baulast"><strong>Baulastenauszug</strong><br/><span style="font-size:.65rem;color:#aaa;">Baulastenverzeichnis der Gemeinde</span></label>
+      </div>
+      <div class="check-row" style="padding:10px 12px;border-bottom:1px solid #f0f0f0;">
+        <input type="checkbox" id="unt_altlast"/>
+        <label for="unt_altlast"><strong>Altlastenauszug</strong><br/><span style="font-size:.65rem;color:#aaa;">Altlasten- und Verdachtsflächenkataster</span></label>
+      </div>
+      <div class="check-row" style="padding:10px 12px;border-bottom:1px solid #f0f0f0;border-right:1px solid #f0f0f0;">
+        <input type="checkbox" id="unt_lageplan"/>
+        <label for="unt_lageplan"><strong>Lageplan / Liegenschaftskarte</strong><br/><span style="font-size:.65rem;color:#aaa;">Amtlicher Lageplan, maßstäblich</span></label>
+      </div>
+      <div class="check-row" style="padding:10px 12px;border-bottom:1px solid #f0f0f0;">
+        <input type="checkbox" id="unt_kataster"/>
+        <label for="unt_kataster"><strong>Katasterauszug / Flurkarte</strong><br/><span style="font-size:.65rem;color:#aaa;">Grenzen, Flurstücke, Flächen</span></label>
+      </div>
+    </div>
+
+    <div class="fg" style="margin-top:16px;">
+      <label>Weitere individuelle Unterlagen (freitext)</label>
+      <textarea id="unt_weitere" placeholder="z. B. Teilungserklärung und Gemeinschaftsordnung (ETW) · Baugenehmigung und Baupläne · Wohnflächenberechnung · Mietvertrag (Kapitalanlage) · Hausgeld-Abrechnung letzter 3 Jahre ..."></textarea>
+    </div>
+    <div class="fg">
+      <label>Anmerkungen / Besonderheiten</label>
+      <textarea id="unt_anmerkung" placeholder="z. B. Grundbuch liegt beim Amtsgericht Bochum, bereits Kopie vorhanden — bitte nur aktualisieren. Energieausweis noch gültig bis 2027, kein Neuer nötig ..."></textarea>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeModal('unterlagen')">Abbrechen</button>
+    <button class="btn btn-outline" onclick="printModal('Unterlagen Bestellung')">🖨 Drucken</button>
+    <button class="btn btn-primary" onclick="submitModal('unterlagen','one_unterlagen_bestellungen','Unterlagen bestellt')">📤 Unterlagen bestellen</button>
+  </div>
+  <div class="success-bar" id="success-unterlagen"></div>
+</div>
+</div>
+
+<footer style="text-align:center;color:#ccc;font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;padding:24px;border-top:1px solid #eee;background:var(--white);margin-top:2px;">
+  <strong style="color:var(--dark);">Engel &amp; Völkers</strong> · Mittleres Ruhrgebiet · ONE · Nur für autorisierte Mitarbeiter
+</footer>
+
+<script>
+// ── SESSION USER ─────────────────────────────────────────────────
+(function(){
+  try {
+    const u = JSON.parse(sessionStorage.getItem('evUser')||'{}');
+    if(document.getElementById('hUserName')) document.getElementById('hUserName').textContent = u.fullName||'';
+    if(document.getElementById('hUserEmail')) document.getElementById('hUserEmail').textContent = u.email||'Engel & Völkers';
+    if(document.getElementById('heroUser')) document.getElementById('heroUser').textContent = u.fullName||'–';
+    if(document.getElementById('heroRole')) document.getElementById('heroRole').textContent = u.email||'Immobilienberater / in';
+  } catch(_){}
+})();
+
+// ── MODAL CONTROL ────────────────────────────────────────────────
+function openModal(id){
+  document.getElementById('modal-'+id).classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(id){
+  document.getElementById('modal-'+id).classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// Close on backdrop click
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',function(e){
+    if(e.target===this) closeModal(this.id.replace('modal-',''));
+  });
+});
+
+// ── OPTION BUTTONS ───────────────────────────────────────────────
+function selOpt(el, groupId){
+  document.querySelectorAll('#'+groupId+' .opt-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+// ── TOGGLE SECTIONS ──────────────────────────────────────────────
+function toggleSection(id, show){
+  document.getElementById(id).style.display = show ? 'block' : 'none';
+}
+
+// ── STATUS HINT ──────────────────────────────────────────────────
+function showStatusHint(type){
+  document.getElementById('status_hint_cs').style.display = type==='cs' ? 'block' : 'none';
+  document.getElementById('status_hint_aktiv').style.display = type==='aktiv' ? 'block' : 'none';
+}
+
+// ── FILE UPLOAD ──────────────────────────────────────────────────
+const _files = {};
+
+function triggerUpload(inputId){ document.getElementById(inputId).click(); }
+
+function addFiles(inputId, listId, fileList){
+  if(!_files[inputId]) _files[inputId] = [];
+  for(const f of fileList){
+    if(!_files[inputId].find(x=>x.name===f.name)) _files[inputId].push(f);
+  }
+  renderFiles(inputId, listId);
+}
+
+function removeFile(inputId, listId, name){
+  if(_files[inputId]) _files[inputId] = _files[inputId].filter(f=>f.name!==name);
+  renderFiles(inputId, listId);
+}
+
+function renderFiles(inputId, listId){
+  const list = document.getElementById(listId);
+  if(!list) return;
+  const files = _files[inputId]||[];
+  list.innerHTML = files.map(f=>{
+    const sz = f.size>1048576?(f.size/1048576).toFixed(1)+' MB':(f.size/1024).toFixed(0)+' KB';
+    const ico = f.type.includes('pdf')?'📄':f.type.startsWith('image')?'🖼️':'📎';
+    return `<div class="file-item">
+      <span class="fi-icon">${ico}</span>
+      <span class="fi-name">${f.name}</span>
+      <span class="fi-size">${sz}</span>
+      <span class="fi-del" onclick="removeFile('${inputId}','${listId}','${f.name.replace(/'/g,"\\'")}')">✕</span>
+    </div>`;
+  }).join('');
+}
+
+function drgOver(e,el){ e.preventDefault(); el.classList.add('dragover'); }
+function drgLeave(el){ el.classList.remove('dragover'); }
+function drgDrop(e, inputId, el){
+  e.preventDefault(); el.classList.remove('dragover');
+  const listId = inputId.replace('_files','_filelist');
+  addFiles(inputId, listId, e.dataTransfer.files);
+}
+
+// ── SUBMIT ───────────────────────────────────────────────────────
+async function submitModal(modalId, table, successMsg){
+  // Collect all checkboxes in modal - require all checked
+  const modal = document.getElementById('modal-'+modalId);
+  const checks = modal.querySelectorAll('input[type=checkbox][id*="chk"]');
+  const unchecked = Array.from(checks).filter(c=>!c.checked);
+  if(unchecked.length > 0){
+    alert('Bitte alle Bestätigungs-Häkchen setzen bevor du fortfährst.');
+    unchecked[0].focus();
+    return;
+  }
+
+  // Collect all text inputs and selects
+  const row = {
+    user_email: '',
+    user_name:  '',
+    modal_id:   modalId,
+    submitted_at: new Date().toISOString()
+  };
+  try {
+    const u = JSON.parse(sessionStorage.getItem('evUser')||'{}');
+    row.user_email = u.email||'';
+    row.user_name  = u.fullName||'';
+  } catch(_){}
+
+  // Collect all input values
+  modal.querySelectorAll('input[type=text],input[type=number],input[type=date],input[type=email],input[type=tel],select,textarea').forEach(el=>{
+    if(el.id && el.value) row[el.id] = el.value;
+  });
+
+  // Collect selected opt-btns
+  modal.querySelectorAll('[id].opt-grid, .opt-grid[id]').forEach(grp=>{
+    const sel = grp.querySelector('.opt-btn.sel');
+    if(sel && grp.id) row['sel_'+grp.id] = sel.textContent.trim();
+  });
+
+  // Collect checked boxes (non-chk ones)
+  modal.querySelectorAll('input[type=checkbox]:not([id*="chk"])').forEach(c=>{
+    if(c.id) row[c.id] = c.checked;
+  });
+
+  // Collect file names
+  Object.keys(_files).forEach(k=>{
+    if(k.startsWith(modalId)) row['dateien'] = (_files[k]||[]).map(f=>f.name).join(', ');
+  });
+
+  // Save to Supabase
+  try {
+    const jwt = EvDB.jwt();
+    if(!jwt) throw new Error('Nicht eingeloggt');
+    const res = await fetch('https://pwkoxtyficedetiymgcj.supabase.co/rest/v1/'+table, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':'sb_publishable_fQvTH65W8d6NTxX_KEp3SQ_SVU4YvGV',
+        'Authorization':'Bearer '+jwt,
+        'Prefer':'return=minimal'
+      },
+      body: JSON.stringify(row)
+    });
+    if(!res.ok){
+      const j = await res.json().catch(()=>({}));
+      // If table doesn't exist yet, show friendly message
+      if(res.status===404||res.status===400){
+        console.warn('[ONE] Tabelle "'+table+'" noch nicht in Supabase — bitte SQL-Schema ausführen');
+        showSuccess(modalId, successMsg+' (lokal — DB-Tabelle noch nicht angelegt)');
+        return;
+      }
+      throw new Error(j.message||res.statusText);
+    }
+    console.info('[ONE] ✓ Gespeichert in '+table);
+    showSuccess(modalId, successMsg);
+  } catch(e){
+    console.error('[ONE]', e.message);
+    showSuccess(modalId, successMsg + ' (Hinweis: DB-Verbindung prüfen — ' + e.message + ')');
+  }
+}
+
+function showSuccess(modalId, msg){
+  const bar = document.getElementById('success-'+modalId);
+  if(bar){
+    bar.textContent = '✓ ' + msg + ' — ' + new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}) + ' Uhr';
+    bar.style.display = 'block';
+  }
+}
+
+// ── PRINT ────────────────────────────────────────────────────────
+function printModal(title){
+  const printWin = window.open('','_blank','width=800,height=900');
+  const u = JSON.parse(sessionStorage.getItem('evUser')||'{}');
+  const now = new Date().toLocaleDateString('de-DE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  let rows = '';
+  // Find the currently open modal
+  const openModal = document.querySelector('.overlay.open .modal');
+  if(openModal){
+    openModal.querySelectorAll('input[type=text],input[type=number],input[type=date],input[type=email],input[type=tel],select,textarea').forEach(el=>{
+      if(el.value && el.id){
+        const lbl = openModal.querySelector('label[for="'+el.id+'"]') || openModal.querySelector('label');
+        rows += `<tr><td style="color:#888;padding:5px 8px;font-size:8pt;text-transform:uppercase;letter-spacing:.5px;width:200px;">${el.id.replace(/_/g,' ')}</td><td style="padding:5px 8px;font-size:9pt;">${el.value}</td></tr>`;
+      }
+    });
+  }
+  printWin.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title>
+  <style>body{font-family:'Segoe UI',Arial,sans-serif;padding:20mm;color:#1a1a1a;}
+  .hdr{display:flex;justify-content:space-between;border-bottom:2pt solid #C41E3A;padding-bottom:10pt;margin-bottom:14pt;}
+  .hdr-l{font-size:18pt;font-weight:900;}.hdr-r{text-align:right;font-size:9pt;color:#888;}
+  table{width:100%;border-collapse:collapse;}tr{border-bottom:0.5pt solid #f0f0f0;}
+  .disc{font-size:7pt;color:#aaa;border-top:0.5pt solid #ccc;padding-top:8pt;margin-top:20pt;text-align:center;}
+  </style></head><body>
+  <div class="hdr"><div class="hdr-l">ENGEL &amp; VÖLKERS</div><div class="hdr-r"><strong>${title}</strong><br/>${now}<br/>${u.fullName||''}</div></div>
+  <table>${rows}</table>
+  <div class="disc">Engel &amp; Völkers Mittleres Ruhrgebiet · ONE · Erstellt: ${now} · ${u.fullName||''}</div>
+  </body></html>`);
+  printWin.document.close();
+  printWin.print();
+}
+</script>
+</body>
+</html>

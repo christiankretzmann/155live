@@ -3,321 +3,305 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>E&V Mitarbeiterportal | Engel & Völkers Mittleres Ruhrgebiet</title>
+<title>E&V Mitarbeiterportal | Engel &amp; Völkers Mittleres Ruhrgebiet</title>
 <script src="ev-supabase.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --red: #C41E3A;
-  --dark: #1a1a1a;
-  --mid: #e0e0e0;
-  --light: #f7f6f4;
-  --white: #ffffff;
-  --serif: 'Cormorant Garamond', Georgia, serif;
-  --sans: 'Raleway', 'Segoe UI', Arial, sans-serif;
+:root{
+  --red:#C41E3A;--dark:#1a1a1a;--mid:#e0e0e0;
+  --light:#f7f6f4;--white:#ffffff;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Raleway','Segoe UI',Arial,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--sans);background:var(--light);color:var(--dark);min-height:100vh;}
 
-/* ═══ LOGIN ═══ */
-#loginOverlay {
+/* ═══ LOGIN — hell, E&V CI ═══ */
+#loginOverlay{
   position:fixed;inset:0;
-  background:var(--dark);
+  background:#f0eeeb;
   display:flex;align-items:center;justify-content:center;
   z-index:1000;
   animation:fadeIn .4s ease;
 }
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.login-panel {
-  background:var(--white);
-  width:100%;max-width:440px;
-  padding:52px 48px 44px;
-  position:relative;
+.login-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  width:100%;max-width:460px;padding:24px;
 }
-.login-panel::before {
-  content:'';position:absolute;top:0;left:0;right:0;
-  height:3px;background:var(--red);
+.login-ev-strip{
+  width:100%;display:flex;align-items:center;justify-content:center;
+  gap:14px;margin-bottom:28px;
 }
-.login-logo {
-  display:flex;align-items:center;gap:14px;
-  margin-bottom:36px;
-}
-.login-ev-box {
-  width:42px;height:42px;background:var(--red);
+.login-ev-box{
+  width:44px;height:44px;background:var(--red);
   display:flex;align-items:center;justify-content:center;
-  color:#fff;font-family:var(--serif);font-weight:700;
-  font-size:.95rem;letter-spacing:-0.5px;flex-shrink:0;
+  color:#fff;font-family:var(--serif);font-weight:700;font-size:1rem;flex-shrink:0;
 }
-.login-brand-name {
-  font-family:var(--serif);font-size:1.05rem;font-weight:600;
-  letter-spacing:1px;text-transform:uppercase;color:var(--dark);
-  line-height:1.2;
+.login-ev-name{
+  font-family:var(--serif);font-size:1.1rem;font-weight:600;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--dark);
 }
-.login-brand-sub {
-  font-family:var(--sans);font-size:.65rem;font-weight:500;
-  letter-spacing:2px;text-transform:uppercase;color:#999;
-  margin-top:3px;
+.login-ev-sub{font-size:.58rem;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+.login-panel{
+  background:var(--white);width:100%;
+  padding:44px 48px 40px;
+  border-top:3px solid var(--red);
+  box-shadow:0 4px 32px rgba(0,0,0,.06);
 }
-.login-headline {
-  font-family:var(--serif);font-size:2.2rem;font-weight:300;
-  color:var(--dark);letter-spacing:-0.5px;
-  margin-bottom:6px;line-height:1.1;
+.login-headline{
+  font-family:var(--serif);font-size:2rem;font-weight:300;
+  color:var(--dark);letter-spacing:-.5px;
+  margin-bottom:4px;line-height:1.1;
 }
-.login-tagline {
-  font-size:.72rem;font-weight:500;letter-spacing:1.5px;
-  text-transform:uppercase;color:#bbb;margin-bottom:36px;
+.login-tagline{
+  font-size:.65rem;font-weight:500;letter-spacing:1.5px;
+  text-transform:uppercase;color:#bbb;margin-bottom:32px;
 }
-.lf {
-  display:flex;flex-direction:column;gap:6px;margin-bottom:20px;
-}
-.lf label {
-  font-size:.62rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:1.5px;color:#999;
-}
-.lf input {
+.lf{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
+.lf label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#aaa;}
+.lf input{
   border:none;border-bottom:1.5px solid #ddd;
   padding:10px 0;font-size:.9rem;font-family:var(--sans);
-  color:var(--dark);background:transparent;
-  transition:border-color .2s;
+  color:var(--dark);background:transparent;transition:border-color .2s;
 }
 .lf input:focus{outline:none;border-bottom-color:var(--red);}
 .lf input::placeholder{color:#ccc;}
-.lf.required label::after{content:' *';color:var(--red);}
-.login-divider {
-  display:flex;align-items:center;gap:14px;margin:8px 0 20px;
-}
-.login-divider::before,.login-divider::after {
-  content:'';flex:1;height:1px;background:#eee;
-}
-.login-divider span {
-  font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:#ddd;
-}
-.login-btn {
-  width:100%;padding:14px;
-  background:var(--red);color:#fff;border:none;
-  font-family:var(--sans);font-size:.72rem;font-weight:700;
+.login-btn{
+  width:100%;padding:14px;background:var(--red);color:#fff;border:none;
+  font-family:var(--sans);font-size:.68rem;font-weight:700;
   letter-spacing:2px;text-transform:uppercase;cursor:pointer;
-  transition:background .2s;margin-top:4px;
+  transition:background .2s;margin-top:8px;
 }
 .login-btn:hover{background:#a01830;}
-.login-error {
-  font-size:.72rem;color:var(--red);margin-top:10px;
-  font-weight:600;letter-spacing:.5px;display:none;
-}
-.login-footer {
-  font-size:.6rem;color:#ddd;letter-spacing:.5px;
-  text-align:center;margin-top:28px;line-height:1.6;
-}
+.login-error{font-size:.72rem;color:var(--red);margin-top:10px;font-weight:600;display:none;}
+.login-footer{font-size:.58rem;color:#ccc;letter-spacing:.3px;text-align:center;margin-top:24px;line-height:1.7;}
 
 /* ═══ HEADER ═══ */
-header {
-  background:var(--white);
-  border-bottom:1px solid #e8e8e8;
+header{
+  background:var(--white);border-bottom:1px solid #e8e8e8;
   padding:0 48px;height:64px;
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:100;
 }
-.hlogo {
-  display:flex;align-items:center;gap:16px;
-}
-.hlogo-ev {
+.hlogo{display:flex;align-items:center;gap:16px;}
+.hlogo-ev{
   width:36px;height:36px;background:var(--red);
   display:flex;align-items:center;justify-content:center;
-  color:#fff;font-family:var(--serif);font-weight:700;
-  font-size:.85rem;letter-spacing:-0.5px;flex-shrink:0;
+  color:#fff;font-family:var(--serif);font-weight:700;font-size:.85rem;flex-shrink:0;
 }
-.hlogo-name {
-  font-family:var(--serif);font-size:1.05rem;font-weight:600;
-  letter-spacing:.5px;text-transform:uppercase;color:var(--dark);
-}
-.hlogo-sub {
-  font-size:.6rem;font-weight:500;letter-spacing:1.5px;
-  text-transform:uppercase;color:#bbb;margin-top:2px;
-}
-.hright {display:flex;align-items:center;gap:20px;}
-.hdate {
-  font-size:.65rem;font-weight:500;letter-spacing:1px;
-  text-transform:uppercase;color:#bbb;
-}
-.huser {display:flex;align-items:center;gap:10px;}
-.huser-avatar {
-  width:32px;height:32px;background:var(--dark);border-radius:50%;
+.hlogo-name{font-family:var(--serif);font-size:1.05rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dark);}
+.hlogo-sub{font-size:.6rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#bbb;margin-top:2px;}
+.hright{display:flex;align-items:center;gap:16px;}
+.hdate{font-size:.65rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:#bbb;}
+.huser{display:flex;align-items:center;gap:10px;}
+.huser-avatar{
+  width:32px;height:32px;background:var(--dark);
   display:flex;align-items:center;justify-content:center;
   color:#fff;font-size:.72rem;font-weight:700;font-family:var(--serif);
-  letter-spacing:.5px;
 }
-.huser-name {
-  font-size:.78rem;font-weight:600;color:var(--dark);letter-spacing:.2px;
-}
-.huser-role {
-  font-size:.6rem;color:#bbb;letter-spacing:.5px;text-transform:uppercase;
-}
-.hlogout {
-  background:none;border:1px solid #ddd;
-  padding:6px 14px;font-family:var(--sans);
-  font-size:.62rem;font-weight:700;letter-spacing:1.5px;
-  text-transform:uppercase;color:#aaa;cursor:pointer;
-  transition:all .2s;
-}
-.hlogout:hover{border-color:var(--red);color:var(--red);}
+.huser-name{font-size:.78rem;font-weight:600;color:var(--dark);}
+.huser-role{font-size:.6rem;color:#bbb;letter-spacing:.3px;}
 .hadmin{
-  display:flex;align-items:center;gap:6px;
+  display:flex;align-items:center;gap:5px;
   font-size:.58rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--dark);text-decoration:none;
-  border:1px solid #ddd;padding:6px 12px;
-  transition:all .2s;
+  color:#888;text-decoration:none;border:1px solid #ddd;padding:6px 12px;transition:all .2s;
 }
 .hadmin:hover{border-color:var(--red);color:var(--red);}
-.hadmin svg{flex-shrink:0;}
+.hlogout{
+  background:none;border:1px solid #ddd;padding:6px 14px;
+  font-family:var(--sans);font-size:.62rem;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;color:#aaa;cursor:pointer;transition:all .2s;
+}
+.hlogout:hover{border-color:var(--red);color:var(--red);}
 
 /* ═══ MAIN ═══ */
-main{max-width:980px;width:100%;margin:0 auto;padding:48px 24px;}
+main{max-width:1000px;width:100%;margin:0 auto;padding:44px 24px 64px;}
 
 /* ═══ GREETING ═══ */
-.greeting-block {
-  margin-bottom:52px;
-  border-left:2px solid var(--red);
-  padding-left:28px;
-}
-.greeting-eyebrow {
-  font-size:.6rem;font-weight:700;letter-spacing:3px;
-  text-transform:uppercase;color:var(--red);margin-bottom:12px;
-}
-.greeting-name {
-  font-family:var(--serif);font-size:2.8rem;font-weight:300;
-  color:var(--dark);letter-spacing:-1px;line-height:1.1;
-  margin-bottom:8px;
-}
-.greeting-meta {
-  font-size:.72rem;font-weight:500;letter-spacing:1px;
-  text-transform:uppercase;color:#bbb;
-}
+.greeting-block{margin-bottom:44px;border-left:2px solid var(--red);padding-left:24px;}
+.greeting-eyebrow{font-size:.6rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:10px;}
+.greeting-name{font-family:var(--serif);font-size:2.6rem;font-weight:300;color:var(--dark);letter-spacing:-1px;line-height:1.1;margin-bottom:6px;}
+.greeting-meta{font-size:.7rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:#bbb;}
 
 /* ═══ SECTION LABEL ═══ */
-.section-label {
-  font-size:.6rem;font-weight:700;letter-spacing:3px;
-  text-transform:uppercase;color:#bbb;
-  margin-bottom:24px;
-  display:flex;align-items:center;gap:16px;
+.section-label{
+  font-size:.58rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#bbb;
+  margin-bottom:20px;display:flex;align-items:center;gap:16px;
 }
-.section-label::after {
-  content:'';flex:1;height:1px;background:#eaeaea;
+.section-label::after{content:'';flex:1;height:1px;background:#eaeaea;}
+
+/* ═══ ONE HERO CARD ═══ */
+.one-hero{
+  background:var(--dark);padding:28px 32px;margin-bottom:2px;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
 }
+.one-hero::before{
+  content:'ONE';
+  position:absolute;right:-10px;top:50%;transform:translateY(-50%);
+  font-family:var(--serif);font-size:8rem;font-weight:300;
+  color:rgba(255,255,255,.04);letter-spacing:-4px;pointer-events:none;line-height:1;
+}
+.one-hero:hover{background:#111;}
+.one-hero-left{}
+.one-hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.52rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--red);margin-bottom:10px;
+}
+.one-hero-badge::before{content:'';width:6px;height:6px;background:var(--red);border-radius:50%;}
+.one-hero-title{
+  font-family:var(--serif);font-size:2rem;font-weight:300;
+  color:#fff;letter-spacing:-.5px;margin-bottom:6px;
+}
+.one-hero-sub{font-size:.72rem;color:#666;line-height:1.7;max-width:520px;}
+.one-hero-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px;}
+.one-tag{
+  font-size:.55rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 10px;background:rgba(255,255,255,.07);color:#888;
+}
+.one-hero-right{
+  font-family:var(--serif);font-size:3rem;font-weight:300;
+  color:rgba(255,255,255,.15);flex-shrink:0;letter-spacing:-2px;
+  display:flex;align-items:center;gap:8px;
+}
+.one-hero-arrow{font-size:.8rem;color:var(--red);}
 
 /* ═══ APP GRID ═══ */
-.app-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:2px;
-  margin-bottom:48px;
-  background:#eaeaea;
-  border:1px solid #eaeaea;
+.app-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));
+  gap:2px;margin-bottom:2px;background:#eaeaea;border:1px solid #eaeaea;
 }
-.app-card {
-  background:var(--white);
-  padding:32px 28px;
-  cursor:pointer;
-  transition:all .25s;
-  text-decoration:none;color:inherit;
-  display:flex;flex-direction:column;gap:12px;
-  position:relative;
+.app-card{
+  background:var(--white);padding:28px 26px;cursor:pointer;
+  transition:all .22s;text-decoration:none;color:inherit;
+  display:flex;flex-direction:column;gap:10px;position:relative;
 }
-.app-card:hover{background:#fafafa;transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.08);}
-.app-card.soon{opacity:.5;cursor:not-allowed;}
+.app-card:hover{background:#fafafa;transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.07);}
+.app-card.soon{opacity:.45;cursor:not-allowed;}
 .app-card.soon:hover{background:var(--white);transform:none;box-shadow:none;}
-.app-card-accent {
-  position:absolute;top:0;left:0;right:0;height:2px;
+.app-card-accent{height:2px;background:#eee;margin-bottom:4px;}
+.card-badge{
+  display:inline-block;font-size:.55rem;font-weight:700;
+  letter-spacing:1.2px;text-transform:uppercase;padding:2px 8px;align-self:flex-start;
 }
-.app-card.live .app-card-accent{background:var(--red);}
-.app-card.live-blue .app-card-accent{background:#2563eb;}
-.card-badge {
-  font-size:.55rem;font-weight:700;letter-spacing:1.5px;
-  text-transform:uppercase;padding:3px 8px;
-  width:fit-content;
-}
-.badge-live{background:#f0fff4;color:#16a34a;}
+.badge-live{background:#fdf0f2;color:var(--red);}
 .badge-soon{background:#f3f4f6;color:#9ca3af;}
-.card-icon{font-size:1.8rem;line-height:1;margin-bottom:4px;}
-.card-title {
-  font-family:var(--serif);font-size:1.15rem;font-weight:600;
-  color:var(--dark);letter-spacing:.2px;
-}
-.card-desc{font-size:.72rem;color:#999;line-height:1.65;font-weight:400;}
+.card-icon{font-size:1.4rem;}
+.card-title{font-family:var(--serif);font-size:1.1rem;font-weight:500;color:var(--dark);letter-spacing:-.2px;}
+.card-desc{font-size:.68rem;color:#aaa;line-height:1.6;}
 
-/* ═══ NEWS ═══ */
-.news-grid {
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:2px;background:#eaeaea;border:1px solid #eaeaea;
-  margin-bottom:48px;
+/* ═══ NEWS GRID ═══ */
+.news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2px;margin-bottom:40px;}
+.news-card{background:var(--white);padding:24px 26px;border-top:2px solid #eaeaea;}
+.news-eyebrow{font-size:.55rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+.news-title{font-family:var(--serif);font-size:1.1rem;font-weight:500;color:var(--dark);margin-bottom:8px;letter-spacing:-.2px;line-height:1.3;}
+.news-body{font-size:.72rem;color:#888;line-height:1.7;}
+
+/* ═══ UPDATES LOG ═══ */
+.updates-list{display:flex;flex-direction:column;gap:0;margin-bottom:48px;}
+.update-item{
+  background:var(--white);padding:16px 22px;
+  border-bottom:1px solid #f0f0f0;border-left:3px solid #eee;
+  display:grid;grid-template-columns:100px 1fr;gap:16px;align-items:start;
+  transition:border-left-color .2s;
 }
-.news-card {
-  background:var(--white);padding:28px;
-  display:flex;flex-direction:column;gap:10px;
+.update-item:hover{border-left-color:var(--red);}
+.update-item:first-child{border-top:1px solid #f0f0f0;}
+.update-date{font-size:.65rem;color:#bbb;font-weight:600;letter-spacing:.3px;padding-top:2px;}
+.update-body{}
+.update-tag{
+  display:inline-block;font-size:.5rem;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;padding:1px 7px;margin-bottom:5px;
 }
-.news-eyebrow {
-  font-size:.55rem;font-weight:700;letter-spacing:2px;
-  text-transform:uppercase;color:var(--red);
+.tag-new{background:#fdf0f2;color:var(--red);}
+.tag-fix{background:#f0faf5;color:#2d7a4f;}
+.tag-info{background:#f0f4ff;color:#1a5fa8;}
+.tag-change{background:#fffbf0;color:#c17b00;}
+.update-title{font-size:.82rem;font-weight:700;color:var(--dark);margin-bottom:2px;}
+.update-desc{font-size:.7rem;color:#aaa;line-height:1.55;}
+
+/* ═══ IN-APP OVERLAY (für alle Apps) ═══ */
+.app-overlay{
+  position:fixed;inset:0;background:rgba(240,238,235,.96);
+  z-index:400;display:none;overflow-y:auto;
+  animation:appSlide .25s ease;
 }
-.news-title {
-  font-family:var(--serif);font-size:1.1rem;font-weight:500;
-  color:var(--dark);line-height:1.35;
+.app-overlay.open{display:block;}
+@keyframes appSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.app-overlay-bar{
+  background:var(--white);border-bottom:1px solid #e8e8e8;
+  padding:0 48px;height:52px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:10;
 }
-.news-body{font-size:.75rem;color:#888;line-height:1.6;}
+.app-overlay-title{font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;}
+.app-overlay-close{
+  display:flex;align-items:center;gap:6px;
+  font-size:.6rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:#aaa;cursor:pointer;border:none;background:none;
+  font-family:var(--sans);transition:color .2s;padding:6px 0;
+}
+.app-overlay-close:hover{color:var(--red);}
+.app-overlay iframe{
+  width:100%;border:none;
+  height:calc(100vh - 52px);
+  display:block;
+}
 
 /* ═══ FOOTER ═══ */
-footer {
-  text-align:center;color:#ccc;font-size:.6rem;letter-spacing:1.5px;
-  text-transform:uppercase;padding:28px;
+footer{
+  text-align:center;color:#bbb;font-size:.6rem;letter-spacing:1.5px;
+  text-transform:uppercase;padding:24px;
   border-top:1px solid #eee;background:var(--white);
-  margin-top:24px;
 }
 footer strong{color:var(--dark);}
 
 @media(max-width:640px){
-  header{padding:0 20px;}
-  main{padding:28px 16px;}
-  .greeting-name{font-size:2rem;}
-  .app-grid{grid-template-columns:1fr 1fr;}
-  .login-panel{padding:36px 28px 32px;}
-  .login-headline{font-size:1.8rem;}
-  .hdate,.huser-role{display:none;}
+  header{padding:0 18px;}
+  main{padding:28px 16px 48px;}
+  .app-overlay-bar{padding:0 18px;}
+  .one-hero{flex-direction:column;align-items:flex-start;padding:22px 20px;}
+  .one-hero-right{display:none;}
+  .login-panel{padding:32px 24px 28px;}
+  .greeting-name{font-size:1.9rem;}
 }
 </style>
 </head>
 <body>
 
-<!-- LOGIN OVERLAY -->
+<!-- ═══ LOGIN ═══ -->
 <div id="loginOverlay">
-  <div class="login-panel">
-    <div class="login-logo">
+  <div class="login-wrap">
+    <div class="login-ev-strip">
       <div class="login-ev-box">E&amp;V</div>
       <div>
-        <div class="login-brand-name">Engel &amp; Völkers</div>
-        <div class="login-brand-sub">Mittleres Ruhrgebiet</div>
+        <div class="login-ev-name">Engel &amp; Völkers</div>
+        <div class="login-ev-sub">Mittleres Ruhrgebiet</div>
       </div>
     </div>
-    <div class="login-headline">Willkommen</div>
-    <div class="login-tagline">Mitarbeiterportal · Interner Zugang</div>
-
-    <div class="lf required">
-      <label>E-Mail-Adresse</label>
-      <input type="email" id="loginEmail" placeholder="vorname@engelvoelkers.de" onkeydown="if(event.key==='Enter')doLogin()"/>
-    </div>
-    <div class="lf required">
-      <label>Passwort</label>
-      <input type="password" id="loginPw" placeholder="Passwort eingeben" onkeydown="if(event.key==='Enter')doLogin()"/>
-    </div>
-
-    <button class="login-btn" id="loginBtn" onclick="doLogin()">Anmelden</button>
-    <div class="login-error" id="loginError">⚠ Anmeldung fehlgeschlagen. Bitte prüfe E-Mail und Passwort.</div>
-    <div class="login-footer">
-      Nur für autorisierte Mitarbeiter · Engel &amp; Völkers Mittleres Ruhrgebiet<br/>
-      Bei Problemen bitte die Geschäftsführung kontaktieren.
+    <div class="login-panel">
+      <div class="login-headline">Willkommen zurück</div>
+      <div class="login-tagline">Mitarbeiterportal · Interner Zugang</div>
+      <div class="lf">
+        <label>E-Mail-Adresse</label>
+        <input type="email" id="loginEmail" placeholder="vorname.nachname@engelvoelkers.de" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <div class="lf">
+        <label>Passwort</label>
+        <input type="password" id="loginPw" placeholder="Passwort eingeben" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">Anmelden</button>
+      <div class="login-error" id="loginError">⚠ Anmeldung fehlgeschlagen. Bitte E-Mail und Passwort prüfen.</div>
+      <div class="login-footer">
+        Nur für autorisierte Mitarbeiter · Engel &amp; Völkers Mittleres Ruhrgebiet<br/>
+        Bei Problemen bitte die Geschäftsführung kontaktieren.
+      </div>
     </div>
   </div>
 </div>
 
-<!-- HEADER -->
+<!-- ═══ HEADER ═══ -->
 <header>
   <div class="hlogo">
     <div class="hlogo-ev">E&amp;V</div>
@@ -336,7 +320,7 @@ footer strong{color:var(--dark);}
       </div>
     </div>
     <a class="hadmin" href="ev-admin.html" title="Admin-Konsole">
-      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
       </svg>
       Admin
@@ -345,50 +329,82 @@ footer strong{color:var(--dark);}
   </div>
 </header>
 
-<!-- MAIN -->
+<!-- ═══ MAIN ═══ -->
 <main>
 
+  <!-- GREETING -->
   <div class="greeting-block">
     <div class="greeting-eyebrow" id="greetEyebrow">Guten Tag</div>
     <div class="greeting-name" id="greetName">–</div>
     <div class="greeting-meta" id="greetMeta">–</div>
   </div>
 
+  <!-- APP SECTION LABEL -->
   <div class="section-label">Apps &amp; Tools</div>
 
+  <!-- ONE HERO -->
+  <div class="one-hero" onclick="openApp('one','ONE — Alles auf einen Klick','ev-one.html')">
+    <div class="one-hero-left">
+      <div class="one-hero-badge">Erste Anlaufstelle · Live</div>
+      <div class="one-hero-title">ONE</div>
+      <div class="one-hero-sub">Gebote mitteilen · Kooperationen vorschlagen · Exposés freigeben · QAA bestellen · Unterlagen anfordern · Objektstatus ändern · Abschlüsse dokumentieren</div>
+      <div class="one-hero-tags">
+        <span class="one-tag">Gebote</span>
+        <span class="one-tag">Kooperationen</span>
+        <span class="one-tag">Exposé-Freigabe</span>
+        <span class="one-tag">QAA</span>
+        <span class="one-tag">Unterlagen</span>
+        <span class="one-tag">Objektstatus</span>
+        <span class="one-tag">Abschluss</span>
+      </div>
+    </div>
+    <div class="one-hero-right">
+      ⚡ <span class="one-hero-arrow">→</span>
+    </div>
+  </div>
+
+  <!-- APP GRID -->
   <div class="app-grid">
 
-    <a class="app-card live" href="ev-umsatzplanung.html" target="_blank">
-      <div class="app-card-accent"></div>
+    <div class="app-card" onclick="openApp('umsatz','Umsatzplanung','ev-umsatzplanung.html')">
+      <div class="app-card-accent" style="background:var(--red);"></div>
       <span class="card-badge badge-live">Live</span>
       <div class="card-icon">💰</div>
       <div class="card-title">Umsatzplanung</div>
       <div class="card-desc">Gehalts- &amp; Provisionsrechner für Fast Track und Club 500. Jahresaufstellung auf Knopfdruck.</div>
-    </a>
+    </div>
 
-    <a class="app-card live-blue" href="ev-socialmedia.html" target="_blank">
-      <div class="app-card-accent"></div>
+    <div class="app-card" onclick="openApp('social','Social Media Manager','ev-socialmedia.html')">
+      <div class="app-card-accent" style="background:#1a5fa8;"></div>
       <span class="card-badge badge-live">Live</span>
       <div class="card-icon">📲</div>
       <div class="card-title">Social Media Manager</div>
       <div class="card-desc">Content-Anfragen schnell und strukturiert ans Social-Media-Team übermitteln.</div>
-    </a>
+    </div>
 
-    <a class="app-card live" href="ev-weekly.html" target="_blank">
-      <div class="app-card-accent"></div>
+    <div class="app-card" onclick="openApp('weekly','Weekly Check-In','ev-weekly.html')">
+      <div class="app-card-accent" style="background:var(--red);"></div>
       <span class="card-badge badge-live">Live</span>
       <div class="card-icon">📋</div>
       <div class="card-title">Weekly Check-In</div>
-      <div class="card-desc">Wöchentliche Qualitätssicherung und persönliche Weiterentwicklung. Ehrliche Selbsteinschätzung.</div>
-    </a>
+      <div class="card-desc">Wöchentliche Qualitätssicherung und persönliche Weiterentwicklung.</div>
+    </div>
 
-    <a class="app-card" href="ev-finanzierung.html" style="text-decoration:none;color:inherit;">
-      <div class="app-card-accent" style="background:var(--blue,#1565c0);"></div>
-      <span class="card-badge" style="background:#e8f0ff;color:#1565c0;">Live</span>
+    <div class="app-card" onclick="openApp('finanzierung','Finanzierungsmanager','ev-finanzierung.html')">
+      <div class="app-card-accent" style="background:#1a5fa8;"></div>
+      <span class="card-badge badge-live">Live</span>
       <div class="card-icon">🏦</div>
       <div class="card-title">Finanzierungsmanager</div>
       <div class="card-desc">Kundendaten, Objektinfos und Finanzierungswunsch strukturiert an Partnerbanken übermitteln.</div>
-    </a>
+    </div>
+
+    <div class="app-card" onclick="openApp('shop','Brand-Shop','ev-werbemittel.html')">
+      <div class="app-card-accent" style="background:#B5713A;"></div>
+      <span class="card-badge" style="background:#f5ede0;color:#B5713A;">Live</span>
+      <div class="card-icon">🛍️</div>
+      <div class="card-title">Brand-Shop</div>
+      <div class="card-desc">Visitenkarten, Schilder, Werbemittel und mehr — CI-konform für alle Standorte bestellen.</div>
+    </div>
 
     <div class="app-card soon" onclick="comingSoon('Feedback')">
       <div class="app-card-accent"></div>
@@ -398,23 +414,23 @@ footer strong{color:var(--dark);}
       <div class="card-desc">Ideen, Anregungen und Rückmeldungen direkt ans Team oder die Geschäftsführung.</div>
     </div>
 
-    <a class="app-card" href="ev-werbemittel.html" style="text-decoration:none;color:inherit;">
-      <div class="app-card-accent" style="background:#B5713A;"></div>
-      <span class="card-badge" style="background:#f5ede0;color:#B5713A;">Live</span>
-      <div class="card-icon">🛍️</div>
-      <div class="card-title">Brand-Shop</div>
-      <div class="card-desc">Visitenkarten, Schilder, Werbemittel und mehr — CI-konform für alle Standorte bestellen.</div>
-    </a>
+    <div class="app-card soon" onclick="comingSoon('Helpdesk')">
+      <div class="app-card-accent"></div>
+      <span class="card-badge badge-soon">Demnächst</span>
+      <div class="card-icon">🎧</div>
+      <div class="card-title">Helpdesk</div>
+      <div class="card-desc">Support-Anfragen, technische Probleme und Rückfragen schnell und strukturiert melden.</div>
+    </div>
 
   </div>
 
-  <div class="section-label">Aktuelles</div>
-
+  <!-- AKTUELLES -->
+  <div class="section-label" style="margin-top:44px;">Aktuelles</div>
   <div class="news-grid">
     <div class="news-card">
       <div class="news-eyebrow">Neuigkeiten</div>
       <div class="news-title">Neues Markt&shy;update verfügbar</div>
-      <div class="news-body">Die aktuellen Markt&shy;daten für das Mittlere Ruhrgebiet wurden aktualisiert. Bitte die Einwertungsgrundlagen entsprechend anpassen.</div>
+      <div class="news-body">Die aktuellen Marktdaten für das Mittlere Ruhrgebiet wurden aktualisiert. Bitte die Einwertungsgrundlagen entsprechend anpassen.</div>
     </div>
     <div class="news-card">
       <div class="news-eyebrow">Erinnerung</div>
@@ -428,103 +444,224 @@ footer strong{color:var(--dark);}
     </div>
   </div>
 
+  <!-- UPDATES LOG -->
+  <div class="section-label">Updates &amp; Changelog</div>
+  <div class="updates-list">
+
+    <div class="update-item">
+      <div class="update-date">15.05.2026</div>
+      <div class="update-body">
+        <span class="update-tag tag-new">Neu</span>
+        <div class="update-title">ONE App live — 7 Funktionen in einer Oberfläche</div>
+        <div class="update-desc">Die neue ONE-App vereint Gebot mitteilen, Kooperation vorschlagen, QAA bestellen, Exposé-Freigabe, Objektstatus ändern, Abschluss buchen und Unterlagen bestellen in einer zentralen Oberfläche. Alle Eingaben werden direkt in Supabase gespeichert.</div>
+      </div>
+    </div>
+
+    <div class="update-item">
+      <div class="update-date">14.05.2026</div>
+      <div class="update-body">
+        <span class="update-tag tag-change">Änderung</span>
+        <div class="update-title">Alle Apps öffnen sich jetzt direkt im Portal</div>
+        <div class="update-desc">Statt einem neuen Tab öffnen sich alle Apps (Umsatzplanung, Social Media, Weekly, Finanzierung, Brand-Shop) jetzt als Overlay im Dashboard — nahtloser, ohne Kontextverlust.</div>
+      </div>
+    </div>
+
+    <div class="update-item">
+      <div class="update-date">14.05.2026</div>
+      <div class="update-body">
+        <span class="update-tag tag-fix">Fix</span>
+        <div class="update-title">Supabase-Anbindung stabilisiert — alle Apps schreiben zuverlässig</div>
+        <div class="update-desc">Fehler bei der Datenbankübertragung in Weekly Check-In, Social Media Manager, Finanzierungsmanager und Umsatzplanung behoben. Alle Formulardaten werden nun zuverlässig gespeichert.</div>
+      </div>
+    </div>
+
+    <div class="update-item">
+      <div class="update-date">13.05.2026</div>
+      <div class="update-body">
+        <span class="update-tag tag-new">Neu</span>
+        <div class="update-title">Finanzierungsmanager live — Bankanbindung in 4 Schritten</div>
+        <div class="update-desc">Der neue Finanzierungsmanager ermöglicht die strukturierte Übermittlung von Finanzierungsanfragen an Sparkasse Bochum, Volksbank, Deutsche Bank, Commerzbank, ING-DiBa und DSL Bank — inkl. Nebenkosten-Berechnung NRW, KfW-Förderprogrammen und Live-Kalkulation.</div>
+      </div>
+    </div>
+
+    <div class="update-item">
+      <div class="update-date">12.05.2026</div>
+      <div class="update-body">
+        <span class="update-tag tag-new">Neu</span>
+        <div class="update-title">Brand-Shop freigeschaltet — Werbemittel auf Knopfdruck</div>
+        <div class="update-desc">CI-konforme Bestellung von Visitenkarten, Galgenschildern, Exposé-Mappen, Roll-ups und weiteren Werbemitteln direkt aus dem Portal. Budget-Verwaltung pro Berater integriert.</div>
+      </div>
+    </div>
+
+    <div class="update-item">
+      <div class="update-date">10.05.2026</div>
+      <div class="update-body">
+        <span class="update-tag tag-info">Info</span>
+        <div class="update-title">Supabase-Datenbankanbindung eingerichtet</div>
+        <div class="update-desc">Das Portal ist nun mit einer vollständigen Cloud-Datenbank (Supabase, Region EU-West Frankfurt) verbunden. Alle Formulardaten aus wöchentlichen Check-Ins, Finanzierungsanfragen, Social-Media-Aufträgen und Bestellungen werden zentral gespeichert und sind über das Admin-Dashboard abrufbar.</div>
+      </div>
+    </div>
+
+    <div class="update-item">
+      <div class="update-date">08.05.2026</div>
+      <div class="update-body">
+        <span class="update-tag tag-new">Neu</span>
+        <div class="update-title">Admin-Dashboard für die Geschäftsführung</div>
+        <div class="update-desc">Neues Admin-Dashboard (ev-admin.html) mit Echtzeit-Übersicht aller Aktivitäten: Bestellungen, Finanzierungsanfragen, Weekly-Scores, Social-Media-Aufträge. KPI-Kacheln, Aktivitäts-Feed und Exportfunktion.</div>
+      </div>
+    </div>
+
+    <div class="update-item">
+      <div class="update-date">05.05.2026</div>
+      <div class="update-body">
+        <span class="update-tag tag-info">Info</span>
+        <div class="update-title">Mitarbeiterportal geht live</div>
+        <div class="update-desc">Das E&V Mitarbeiterportal „Shop World" für Engel &amp; Völkers Mittleres Ruhrgebiet wurde offiziell gestartet. Verfügbar über die interne URL. Erstzugang per E-Mail an die Geschäftsführung.</div>
+      </div>
+    </div>
+
+  </div>
+
 </main>
 
 <footer>
   <strong>Engel &amp; Völkers</strong> · Mittleres Ruhrgebiet · Mitarbeiterportal · Nur für autorisierte Mitarbeiter
 </footer>
 
+<!-- ═══ APP OVERLAYS ═══ -->
+<div class="app-overlay" id="overlay-umsatz">
+  <div class="app-overlay-bar">
+    <span class="app-overlay-title">Umsatzplanung</span>
+    <button class="app-overlay-close" onclick="closeApp('umsatz')">← Zurück zum Portal</button>
+  </div>
+  <iframe id="frame-umsatz" src="" title="Umsatzplanung"></iframe>
+</div>
+
+<div class="app-overlay" id="overlay-social">
+  <div class="app-overlay-bar">
+    <span class="app-overlay-title">Social Media Manager</span>
+    <button class="app-overlay-close" onclick="closeApp('social')">← Zurück zum Portal</button>
+  </div>
+  <iframe id="frame-social" src="" title="Social Media Manager"></iframe>
+</div>
+
+<div class="app-overlay" id="overlay-weekly">
+  <div class="app-overlay-bar">
+    <span class="app-overlay-title">Weekly Check-In</span>
+    <button class="app-overlay-close" onclick="closeApp('weekly')">← Zurück zum Portal</button>
+  </div>
+  <iframe id="frame-weekly" src="" title="Weekly Check-In"></iframe>
+</div>
+
+<div class="app-overlay" id="overlay-finanzierung">
+  <div class="app-overlay-bar">
+    <span class="app-overlay-title">Finanzierungsmanager</span>
+    <button class="app-overlay-close" onclick="closeApp('finanzierung')">← Zurück zum Portal</button>
+  </div>
+  <iframe id="frame-finanzierung" src="" title="Finanzierungsmanager"></iframe>
+</div>
+
+<div class="app-overlay" id="overlay-shop">
+  <div class="app-overlay-bar">
+    <span class="app-overlay-title">Brand-Shop</span>
+    <button class="app-overlay-close" onclick="closeApp('shop')">← Zurück zum Portal</button>
+  </div>
+  <iframe id="frame-shop" src="" title="Brand-Shop"></iframe>
+</div>
+
+<div class="app-overlay" id="overlay-one">
+  <div class="app-overlay-bar">
+    <span class="app-overlay-title">ONE</span>
+    <button class="app-overlay-close" onclick="closeApp('one')">← Zurück zum Portal</button>
+  </div>
+  <iframe id="frame-one" src="" title="ONE"></iframe>
+</div>
+
 <script>
-async function doLogin() {
+// ── OPEN / CLOSE APP OVERLAY ─────────────────────────────────────
+function openApp(id, title, url){
+  const overlay = document.getElementById('overlay-'+id);
+  const frame   = document.getElementById('frame-'+id);
+  if(!overlay) return;
+  if(frame && !frame.src.includes(url)) frame.src = url;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  history.pushState({app:id}, title, '#'+id);
+}
+
+function closeApp(id){
+  const overlay = document.getElementById('overlay-'+id);
+  if(overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
+  if(history.state && history.state.app) history.back();
+}
+
+// Close on browser back button
+window.addEventListener('popstate', function(){
+  document.querySelectorAll('.app-overlay.open').forEach(o=>{
+    o.classList.remove('open');
+  });
+  document.body.style.overflow = '';
+});
+
+// ── LOGIN ────────────────────────────────────────────────────────
+async function doLogin(){
   const email = document.getElementById('loginEmail').value.trim();
   const pw    = document.getElementById('loginPw').value;
   const btn   = document.getElementById('loginBtn');
   const err   = document.getElementById('loginError');
-
-  if (!email || !pw) {
-    err.textContent = '⚠ Bitte E-Mail und Passwort eingeben.';
-    err.style.display = 'block'; return;
-  }
-
-  btn.textContent = 'Anmelden …';
-  btn.disabled = true;
-  err.style.display = 'none';
-
-  try {
-    // Supabase Auth Login
+  if(!email||!pw){err.textContent='⚠ Bitte E-Mail und Passwort eingeben.';err.style.display='block';return;}
+  btn.textContent='Anmelden …';btn.disabled=true;err.style.display='none';
+  try{
     const user = await EvDB.login(email, pw);
     applyUser(user);
-    document.getElementById('loginOverlay').style.display = 'none';
-  } catch(e) {
-    err.textContent = '⚠ ' + (e.message || 'Anmeldung fehlgeschlagen.');
-    err.style.display = 'block';
+    document.getElementById('loginOverlay').style.display='none';
+  }catch(e){
+    err.textContent='⚠ '+(e.message||'Anmeldung fehlgeschlagen.');
+    err.style.display='block';
     document.getElementById('loginPw').focus();
-  } finally {
-    btn.textContent = 'Anmelden';
-    btn.disabled = false;
-  }
+  }finally{btn.textContent='Anmelden';btn.disabled=false;}
 }
 
-function applyUser(user) {
+function applyUser(user){
   const now = new Date();
-  const dateStr = now.toLocaleDateString('de-DE', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-  const hour = now.getHours();
-  let greeting = hour < 12 ? 'Guten Morgen' : hour < 18 ? 'Guten Tag' : 'Guten Abend';
-
+  const dateStr = now.toLocaleDateString('de-DE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const h = now.getHours();
+  const greet = h<12?'Guten Morgen':h<18?'Guten Tag':'Guten Abend';
   document.getElementById('greetEyebrow').textContent = dateStr;
-  document.getElementById('greetName').textContent = user.firstName || user.fullName;
-  document.getElementById('greetMeta').textContent = user.email || 'Engel & Völkers · Mittleres Ruhrgebiet';
-
-  document.getElementById('headerDate').textContent = dateStr;
-  document.getElementById('headerAvatar').textContent = user.initials;
-  document.getElementById('headerName').textContent = user.fullName;
-  document.getElementById('headerEmail').textContent = user.email || 'E&V Mittleres Ruhrgebiet';
-
-  // Update app links with user data
-  document.querySelectorAll('.app-card[href]').forEach(a => {
-    const base = a.getAttribute('href').split('?')[0];
-    a.setAttribute('href', base);
-  });
+  document.getElementById('greetName').textContent    = greet+', '+(user.firstName||user.fullName);
+  document.getElementById('greetMeta').textContent    = user.email||'Engel & Völkers · Mittleres Ruhrgebiet';
+  document.getElementById('headerDate').textContent   = dateStr;
+  document.getElementById('headerAvatar').textContent = user.initials||'EV';
+  document.getElementById('headerName').textContent   = user.fullName||'';
+  document.getElementById('headerEmail').textContent  = user.email||'';
 }
 
-async function doLogout() {
-  if (confirm('Möchtest du dich wirklich abmelden?')) {
+async function doLogout(){
+  if(confirm('Möchtest du dich wirklich abmelden?')){
     await EvDB.logout();
-    document.getElementById('loginEmail').value = '';
-    document.getElementById('loginPw').value = '';
-    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('loginEmail').value='';
+    document.getElementById('loginPw').value='';
+    document.getElementById('loginOverlay').style.display='flex';
   }
 }
 
-function comingSoon(name) {
-  alert('⏳ „' + name + '" befindet sich aktuell in Entwicklung und wird in Kürze verfügbar sein.');
+function comingSoon(name){
+  alert('⏳ „'+name+'" befindet sich in Entwicklung und wird in Kürze verfügbar sein.');
 }
 
-// Supabase session restore on load
-(async function() {
-  try {
+// ── SESSION RESTORE ──────────────────────────────────────────────
+(async function(){
+  const now = new Date();
+  document.getElementById('headerDate').textContent =
+    now.toLocaleDateString('de-DE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  try{
     const user = await EvDB.getCurrentUser();
-    if (user) {
-      sessionStorage.setItem('evUser', JSON.stringify(user));
-      applyUser(user);
-      document.getElementById('loginOverlay').style.display = 'none';
-      return;
-    }
-  } catch(e) {}
-  // Fallback: check sessionStorage
+    if(user){applyUser(user);document.getElementById('loginOverlay').style.display='none';return;}
+  }catch(e){}
   const saved = sessionStorage.getItem('evUser');
-  if (saved) {
-    try {
-      applyUser(JSON.parse(saved));
-      document.getElementById('loginOverlay').style.display = 'none';
-    } catch(e) {}
-  }
+  if(saved){try{applyUser(JSON.parse(saved));document.getElementById('loginOverlay').style.display='none';}catch(e){}}
 })();
-
-// Set date
-const now = new Date();
-document.getElementById('headerDate').textContent =
-  now.toLocaleDateString('de-DE', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 </script>
 </body>
 </html>
