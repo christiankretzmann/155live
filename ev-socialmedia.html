@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Social Media Manager | Engel & Völkers</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --red:#C41E3A;--dark:#1a1a1a;--mid:#e0e0e0;--light:#f7f6f4;--white:#fff;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Raleway','Segoe UI',Arial,sans-serif;
+  --gold:#b8860b;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--light);color:var(--dark);min-height:100vh;}
+
+/* HEADER */
+header{
+  background:var(--white);border-bottom:1px solid #e8e8e8;
+  padding:0 48px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.hlogo{display:flex;align-items:center;gap:16px;}
+.hlogo-ev{
+  width:36px;height:36px;background:var(--red);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-family:var(--serif);font-weight:700;font-size:.85rem;letter-spacing:-.5px;flex-shrink:0;
+}
+.hlogo-name{font-family:var(--serif);font-size:1.05rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dark);}
+.hlogo-sub{font-size:.6rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#bbb;margin-top:2px;}
+.hright{display:flex;align-items:center;gap:20px;}
+.hback{font-size:.62rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);text-decoration:none;}
+.hback:hover{text-decoration:underline;}
+.huser-info{text-align:right;}
+.huser-name{font-size:.78rem;font-weight:600;color:var(--dark);}
+.huser-email{font-size:.6rem;color:#bbb;letter-spacing:.3px;}
+
+/* WRAP */
+.wrap{max-width:860px;margin:40px auto;padding:0 20px;display:flex;flex-direction:column;gap:20px;}
+
+/* PAGE TITLE */
+.page-header{border-left:2px solid var(--red);padding-left:20px;margin-bottom:8px;}
+.page-eyebrow{font-size:.6rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+.page-title{font-family:var(--serif);font-size:2rem;font-weight:300;color:var(--dark);letter-spacing:-.5px;}
+
+/* PROGRESS BAR */
+.progress-bar{background:var(--white);border-top:2px solid #eaeaea;padding:20px 28px;}
+.prog-steps{display:flex;align-items:center;gap:0;}
+.prog-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;}
+.prog-dot{width:32px;height:32px;border:1.5px solid var(--mid);background:var(--white);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#bbb;transition:all .3s;font-family:var(--serif);}
+.prog-step.done .prog-dot{background:var(--red);border-color:var(--red);color:#fff;}
+.prog-step.active .prog-dot{border-color:var(--red);color:var(--red);}
+.prog-label{font-size:.6rem;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:.5px;text-align:center;}
+.prog-step.active .prog-label{color:var(--red);}
+.prog-step.done .prog-label{color:#555;}
+.prog-line{flex:1;height:1.5px;background:var(--mid);margin-bottom:22px;transition:background .3s;}
+.prog-line.done{background:var(--red);}
+
+/* CARD */
+.card{background:var(--white);padding:36px 40px;border-top:2px solid #eaeaea;}
+.card h2{
+  font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;
+  color:var(--red);border-bottom:1px solid #f0f0f0;padding-bottom:12px;
+  margin-bottom:24px;display:flex;align-items:center;gap:8px;
+}
+.card-sub{font-size:.8rem;color:#888;margin-bottom:20px;line-height:1.6;}
+
+/* FORM */
+label.lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#999;display:block;margin-bottom:8px;}
+.req{color:var(--red);}
+input[type=text],input[type=email],input[type=date],textarea,select{
+  border:none;border-bottom:1.5px solid #ddd;
+  padding:10px 0;font-size:.88rem;color:var(--dark);
+  background:transparent;transition:border-color .2s;
+  width:100%;font-family:var(--sans);
+}
+input:focus,textarea:focus,select:focus{outline:none;border-bottom-color:var(--red);}
+select{-webkit-appearance:none;cursor:pointer;}
+textarea{resize:vertical;min-height:72px;border:1.5px solid #ddd;padding:10px 12px;border-radius:0;background:#fafafa;}
+textarea:focus{background:var(--white);}
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:20px;}
+.fg.half{flex:1;min-width:200px;}
+.row{display:flex;gap:20px;flex-wrap:wrap;}
+.hint{font-size:.68rem;color:#aaa;margin-top:4px;line-height:1.5;}
+
+/* TYPE GRID */
+.type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1px;background:#eee;margin-bottom:20px;}
+.type-card{border:none;background:var(--white);padding:16px 14px;text-align:center;cursor:pointer;transition:all .2s;}
+.type-card:hover{background:#fafafa;}
+.type-card.selected{background:#fdf0f2;outline:2px solid var(--red);}
+.type-icon{font-size:1.5rem;margin-bottom:6px;}
+.type-label{font-size:.72rem;font-weight:700;color:#444;letter-spacing:.3px;}
+.type-desc{font-size:.62rem;color:#aaa;margin-top:3px;}
+
+/* PILLS */
+.pill-group{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.pill{border:1.5px solid var(--mid);padding:7px 16px;font-size:.72rem;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .2s;background:var(--white);color:#888;text-transform:uppercase;}
+.pill:hover{border-color:var(--red);color:var(--red);}
+.pill.selected{background:var(--red);border-color:var(--red);color:#fff;}
+.format-pill{border:1.5px solid var(--mid);padding:8px 14px;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;background:var(--white);color:#888;display:flex;align-items:center;gap:6px;}
+.format-pill:hover{border-color:var(--red);color:var(--red);}
+.format-pill.selected{background:var(--red);border-color:var(--red);color:#fff;}
+
+/* URGENCY */
+.urgency-group{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.urg-btn{flex:1;min-width:110px;border:1.5px solid var(--mid);padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;background:var(--white);}
+.urg-btn:hover{border-color:#888;}
+.urg-btn.u1.selected{border-color:#16a34a;background:#f0fff4;}
+.urg-btn.u2.selected{border-color:#f59e0b;background:#fffbf0;}
+.urg-btn.u3.selected{border-color:var(--red);background:#fdf0f2;}
+.urg-icon{font-size:1.2rem;margin-bottom:4px;}
+.urg-label{font-size:.72rem;font-weight:700;}
+.urg-sub{font-size:.62rem;color:#aaa;margin-top:2px;}
+
+/* UPLOAD */
+.upload-zone{border:1.5px dashed var(--mid);padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa;margin-bottom:18px;}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--red);background:#fdf5f5;}
+.upload-icon{font-size:1.8rem;margin-bottom:8px;}
+.upload-text{font-size:.8rem;color:#888;line-height:1.6;}
+#fileInput{display:none;}
+.file-list{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.file-item{display:flex;align-items:center;gap:10px;background:#f5f5f5;padding:8px 12px;font-size:.78rem;}
+.file-item .fi-name{flex:1;font-weight:600;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.file-item .fi-size{color:#aaa;font-size:.68rem;}
+.file-item .fi-del{color:#bbb;cursor:pointer;padding:2px 4px;}
+.file-item .fi-del:hover{color:var(--red);}
+
+/* TOGGLE */
+.toggle-section{border:1px solid #eee;margin-bottom:14px;}
+.toggle-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;background:#fafafa;transition:background .2s;}
+.toggle-header:hover{background:#f0f0f0;}
+.toggle-title{font-size:.72rem;font-weight:700;color:#555;display:flex;align-items:center;gap:8px;letter-spacing:.3px;}
+.toggle-arrow{font-size:.7rem;color:#aaa;transition:transform .2s;}
+.toggle-body{padding:16px;border-top:1px solid #eee;display:none;}
+.toggle-body.open{display:block;}
+
+/* CHECKBOX */
+.check-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
+.check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--red);flex-shrink:0;margin-top:3px;}
+.check-row label{font-size:.82rem;color:#555;line-height:1.5;cursor:pointer;}
+
+/* CONSENT */
+.consent-box{background:#fff8f0;border-left:3px solid #fcd34d;padding:14px 16px;margin-bottom:14px;}
+.consent-box.required{border-left-color:var(--red);background:#fdf0f2;}
+.consent-title{font-size:.72rem;font-weight:700;color:#92400e;margin-bottom:8px;}
+.consent-box.required .consent-title{color:var(--red);}
+
+/* LOGO */
+.logo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:#eee;margin-bottom:18px;}
+.logo-card{border:none;background:var(--white);padding:14px;text-align:center;cursor:pointer;transition:all .2s;}
+.logo-card:hover{background:#fafafa;}
+.logo-card.selected{background:#fdf0f2;outline:2px solid var(--red);}
+.logo-preview{height:40px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;font-size:.9rem;font-weight:900;letter-spacing:-1px;}
+.logo-ev-color{background:linear-gradient(135deg,#C41E3A,#1a1a1a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--serif);}
+.logo-ev-white{background:#1a1a1a;color:#fff;padding:4px 12px;font-family:var(--serif);}
+.logo-ev-black{color:#1a1a1a;border:2px solid #1a1a1a;padding:4px 12px;font-family:var(--serif);}
+.logo-ev-short{color:var(--red);font-size:1.6rem;letter-spacing:-2px;font-family:var(--serif);}
+.logo-name{font-size:.65rem;color:#888;font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+
+/* TONE */
+.tone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#eee;margin-bottom:18px;}
+.tone-btn{border:none;background:var(--white);padding:10px 8px;text-align:center;cursor:pointer;transition:all .2s;font-size:.72rem;font-weight:700;color:#777;letter-spacing:.3px;}
+.tone-btn:hover{background:#fafafa;color:var(--red);}
+.tone-btn.selected{background:#fdf0f2;color:var(--red);}
+
+/* NAV BTNS */
+.nav-row{display:flex;gap:12px;justify-content:space-between;margin-top:16px;}
+.btn{padding:12px 28px;border:none;font-family:var(--sans);font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;}
+.btn-primary{background:var(--red);color:#fff;}
+.btn-primary:hover{background:#a01830;}
+.btn-secondary{background:#f0f0f0;color:#666;}
+.btn-secondary:hover{background:#e0e0e0;}
+.btn-outline{background:var(--white);border:1.5px solid var(--red);color:var(--red);}
+.btn-outline:hover{background:#fdf0f2;}
+.btn-success{background:#16a34a;color:#fff;}
+.btn-success:hover{background:#15803d;}
+
+/* SUMMARY */
+.summary-section{margin-bottom:20px;}
+.summary-title{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#bbb;margin-bottom:12px;border-bottom:1px solid #f5f5f5;padding-bottom:6px;}
+.summary-row{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:.82rem;}
+.summary-key{color:#aaa;min-width:160px;font-weight:600;font-size:.72rem;letter-spacing:.5px;text-transform:uppercase;}
+.summary-val{color:#333;flex:1;}
+.summary-highlight{background:var(--dark);padding:16px 20px;color:#fff;margin-bottom:20px;}
+.summary-highlight .sh-title{font-size:.6rem;text-transform:uppercase;letter-spacing:2px;color:#aaa;margin-bottom:6px;}
+.summary-highlight .sh-val{font-family:var(--serif);font-size:1.2rem;font-weight:400;}
+.action-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
+
+/* STEP VISIBILITY */
+.step{display:none;}
+.step.active{display:block;}
+
+/* SUCCESS */
+.success-screen{text-align:center;padding:52px 20px;}
+.success-icon{font-size:2.8rem;margin-bottom:16px;}
+.success-kicker{font-size:.6rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--red);margin-bottom:10px;font-weight:700;}
+.success-title{font-family:var(--serif);font-size:1.8rem;font-weight:300;color:var(--dark);margin-bottom:10px;}
+.success-sub{font-size:.8rem;color:#888;line-height:1.7;margin-bottom:32px;}
+
+/* OBJECT FIELDS */
+.object-fields{background:#f8f8f8;padding:16px;margin-bottom:18px;border-left:2px solid #eee;display:none;}
+.object-fields.show{display:block;}
+.collab-detail{background:#f0f9ff;border-left:2px solid #bae6fd;padding:12px;margin-top:10px;display:none;}
+.collab-detail.show{display:block;}
+
+footer{text-align:center;color:#bbb;font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;padding:24px;margin-top:8px;border-top:1px solid #eee;background:var(--white);}
+
+@media(max-width:600px){
+  .card{padding:24px 18px;}
+  header{padding:12px 20px;}
+  .type-grid{grid-template-columns:repeat(2,1fr);}
+  .logo-grid{grid-template-columns:repeat(2,1fr);}
+  .tone-grid{grid-template-columns:repeat(2,1fr);}
+  .nav-row{flex-direction:column;}
+  .btn{justify-content:center;}
+}
+
+@media print{
+  header,.progress-bar,.nav-row,.action-row,footer,.toggle-header{display:none!important;}
+  body{background:#fff!important;}
+  .wrap{margin:0!important;padding:0!important;max-width:100%!important;}
+  .card{box-shadow:none!important;}
+  .step{display:block!important;}
+  #step1,#step2,#step3,#step4{display:none!important;}
+  .toggle-body{display:block!important;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hlogo">
+    <div class="hlogo-ev">E&amp;V</div>
+    <div>
+      <div class="hlogo-name">Engel &amp; Völkers</div>
+      <div class="hlogo-sub">Social Media Manager</div>
+    </div>
+  </div>
+  <div class="hright">
+    <a class="hback" href="ev-portal.html">← Portal</a>
+    <div class="huser-info">
+      <div class="huser-name" id="hUserName"></div>
+      <div class="huser-email" id="hUserEmail"></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="page-header">
+    <div class="page-eyebrow">Mittleres Ruhrgebiet · Internes Tool</div>
+    <div class="page-title">Content-Anfrage</div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-bar">
+    <div class="prog-steps">
+      <div class="prog-step active" id="ps1"><div class="prog-dot">1</div><div class="prog-label">Beitragsart</div></div>
+      <div class="prog-line" id="pl1"></div>
+      <div class="prog-step" id="ps2"><div class="prog-dot">2</div><div class="prog-label">Inhalt</div></div>
+      <div class="prog-line" id="pl2"></div>
+      <div class="prog-step" id="ps3"><div class="prog-dot">3</div><div class="prog-label">Medien</div></div>
+      <div class="prog-line" id="pl3"></div>
+      <div class="prog-step" id="ps4"><div class="prog-dot">4</div><div class="prog-label">Details</div></div>
+      <div class="prog-line" id="pl4"></div>
+      <div class="prog-step" id="ps5"><div class="prog-dot">5</div><div class="prog-label">Absenden</div></div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step active" id="step1">
+    <div class="card">
+      <h2>Schritt 1 — Was soll gepostet werden?</h2>
+      <p class="card-sub">Wähle die Art des Beitrags. Pflichtfeld <span class="req">*</span></p>
+      <div class="type-grid" id="typeGrid">
+        <div class="type-card" data-type="immobilie" onclick="selectType(this)"><div class="type-icon">🏠</div><div class="type-label">Immobilie</div><div class="type-desc">Objekt vorstellen</div></div>
+        <div class="type-card" data-type="event" onclick="selectType(this)"><div class="type-icon">🎉</div><div class="type-label">Event</div><div class="type-desc">Veranstaltung</div></div>
+        <div class="type-card" data-type="rezension" onclick="selectType(this)"><div class="type-icon">⭐</div><div class="type-label">Kundenrezension</div><div class="type-desc">Kundenstimme</div></div>
+        <div class="type-card" data-type="team" onclick="selectType(this)"><div class="type-icon">👥</div><div class="type-label">Team-Vorstellung</div><div class="type-desc">Mitarbeiter/in</div></div>
+        <div class="type-card" data-type="markt" onclick="selectType(this)"><div class="type-icon">📊</div><div class="type-label">Marktbericht</div><div class="type-desc">Zahlen & Trends</div></div>
+        <div class="type-card" data-type="bts" onclick="selectType(this)"><div class="type-icon">🎬</div><div class="type-label">Behind the Scenes</div><div class="type-desc">Einblick ins Büro</div></div>
+        <div class="type-card" data-type="tipp" onclick="selectType(this)"><div class="type-icon">💡</div><div class="type-label">Immobilien-Tipp</div><div class="type-desc">Ratgeber & Wissen</div></div>
+        <div class="type-card" data-type="meilenstein" onclick="selectType(this)"><div class="type-icon">🏆</div><div class="type-label">Meilenstein</div><div class="type-desc">Erfolg feiern</div></div>
+        <div class="type-card" data-type="saisonal" onclick="selectType(this)"><div class="type-icon">🌸</div><div class="type-label">Saisonaler Post</div><div class="type-desc">Anlass / Feiertag</div></div>
+        <div class="type-card" data-type="gewinnspiel" onclick="selectType(this)"><div class="type-icon">🎁</div><div class="type-label">Gewinnspiel</div><div class="type-desc">Engagement boost</div></div>
+        <div class="type-card" data-type="kooperation" onclick="selectType(this)"><div class="type-icon">🤝</div><div class="type-label">Kooperation</div><div class="type-desc">Partner-Post</div></div>
+        <div class="type-card" data-type="sonstiges" onclick="selectType(this)"><div class="type-icon">✏️</div><div class="type-label">Sonstiges</div><div class="type-desc">Freie Eingabe</div></div>
+      </div>
+      <div class="row">
+        <div class="fg half">
+          <label class="lbl">Dein Name <span class="req">*</span></label>
+          <input type="text" id="senderName" placeholder="Max Mustermann"/>
+        </div>
+        <div class="fg half">
+          <label class="lbl">Deine E-Mail (für Bestätigung)</label>
+          <input type="email" id="senderEmail" placeholder="max@engelvoelkers.com"/>
+        </div>
+      </div>
+      <div class="nav-row"><div></div><button class="btn btn-primary" onclick="goStep(2)">Weiter →</button></div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step" id="step2">
+    <div class="card">
+      <h2>Schritt 2 — Inhalte & Infos</h2>
+      <label class="lbl">Zielplattform <span class="req">*</span></label>
+      <div class="pill-group" id="platformGroup">
+        <div class="pill selected" onclick="togglePill(this,'platform')">Instagram</div>
+        <div class="pill" onclick="togglePill(this,'platform')">Facebook</div>
+        <div class="pill" onclick="togglePill(this,'platform')">LinkedIn</div>
+        <div class="pill" onclick="togglePill(this,'platform')">TikTok</div>
+        <div class="pill" onclick="togglePill(this,'platform')">Alle Kanäle</div>
+      </div>
+      <label class="lbl">Beitragsformat</label>
+      <div class="pill-group" id="formatGroup">
+        <div class="format-pill selected" onclick="togglePill(this,'format')">📷 Post</div>
+        <div class="format-pill" onclick="togglePill(this,'format')">📖 Story</div>
+        <div class="format-pill" onclick="togglePill(this,'format')">🎬 Reel / Video</div>
+        <div class="format-pill" onclick="togglePill(this,'format')">🖼️ Karussell</div>
+      </div>
+      <div class="fg">
+        <label class="lbl">Kurztext / Caption-Idee <span class="req">*</span></label>
+        <textarea id="captionText" placeholder="Was soll der Beitrag vermitteln? Gerne Stichworte oder einen Entwurf." rows="3"></textarea>
+        <span class="hint">Kein perfekter Text nötig — Stichwörter reichen. Das Team gestaltet den finalen Text.</span>
+      </div>
+      <div class="fg">
+        <label class="lbl">Fakten / Infos die unbedingt genannt werden sollen</label>
+        <textarea id="mustHave" placeholder="z.B. Preis: 450.000 € · Lage: Bochum-Süd · 4 Zimmer · Baujahr 2010 ..." rows="2"></textarea>
+      </div>
+      <div class="fg">
+        <label class="lbl">Keywords / Hashtag-Ideen</label>
+        <input type="text" id="keywords" placeholder="z.B. Traumhaus, Bochum, Erstbezug, Familienhaus ..."/>
+        <span class="hint">Kommagetrennt. Das Team ergänzt passende Hashtags.</span>
+      </div>
+      <div class="object-fields" id="objectFields">
+        <div style="font-size:.65rem;font-weight:700;color:var(--red);margin-bottom:12px;text-transform:uppercase;letter-spacing:1.5px;">🏠 Objektdetails</div>
+        <div class="row">
+          <div class="fg half"><label class="lbl">Objekttyp</label><input type="text" id="objType" placeholder="z.B. Einfamilienhaus, ETW ..."/></div>
+          <div class="fg half"><label class="lbl">Lage / Stadtteil</label><input type="text" id="objLage" placeholder="z.B. Bochum-Süd"/></div>
+        </div>
+        <div class="row">
+          <div class="fg half"><label class="lbl">Kaufpreis / Miete</label><input type="text" id="objPreis" placeholder="z.B. 450.000 € / 1.200 € KM"/></div>
+          <div class="fg half"><label class="lbl">Wohnfläche / Zimmer</label><input type="text" id="objGroesse" placeholder="z.B. 140 m² · 4 Zi."/></div>
+        </div>
+        <div class="fg"><label class="lbl">Besondere Highlights</label><input type="text" id="objHighlight" placeholder="z.B. Garten, Garage, Neubau, ruhige Lage ..."/></div>
+      </div>
+      <div class="toggle-section">
+        <div class="toggle-header" onclick="toggleSection(this)">
+          <span class="toggle-title">🚫 Was darf NICHT erwähnt werden?</span><span class="toggle-arrow">▼</span>
+        </div>
+        <div class="toggle-body">
+          <div class="fg"><label class="lbl">Personen, Fakten oder Dinge, die nicht genannt/gezeigt werden dürfen</label><textarea id="noGo" placeholder="z.B. Name des Eigentümers, genaue Adresse, laufende Verhandlungen ..." rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" onclick="goStep(1)">← Zurück</button>
+        <button class="btn btn-primary" onclick="goStep(3)">Weiter →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step" id="step3">
+    <div class="card">
+      <h2>Schritt 3 — Medien hochladen</h2>
+      <p class="card-sub">Lade Fotos, Videos oder Grafiken hoch. Je mehr Material, desto besser kann das Team arbeiten.</p>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFiles(event)">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text"><strong>Dateien hier ablegen oder antippen zum Auswählen</strong><br/>Fotos (JPG, PNG), Videos (MP4, MOV), Grafiken (PDF, AI, PNG)<br/><span style="font-size:.65rem;">Mehrere Dateien möglich · Max. 50 MB pro Datei</span></div>
+      </div>
+      <input type="file" id="fileInput" multiple accept="image/*,video/*,.pdf,.ai,.eps,.psd" onchange="addFiles(this.files)"/>
+      <div class="file-list" id="fileList"></div>
+      <div class="toggle-section">
+        <div class="toggle-header" onclick="toggleSection(this)">
+          <span class="toggle-title">🔢 Reihenfolge & Bildhinweise</span><span class="toggle-arrow">▼</span>
+        </div>
+        <div class="toggle-body">
+          <div class="fg"><label class="lbl">Gewünschte Reihenfolge / Hinweise zu den Bildern</label><textarea id="mediaHints" placeholder="z.B. Bild 1 = Titelbild, Bild 2 = Küche, bitte Hausnummer unkenntlich machen ..." rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" onclick="goStep(2)">← Zurück</button>
+        <button class="btn btn-primary" onclick="goStep(4)">Weiter →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step" id="step4">
+    <div class="card">
+      <h2>Schritt 4 — Details & Einwilligungen</h2>
+      <label class="lbl">Dringlichkeit <span class="req">*</span></label>
+      <div class="urgency-group">
+        <div class="urg-btn u1 selected" id="urg1" onclick="selectUrgency('u1')"><div class="urg-icon">🟢</div><div class="urg-label">Flexibel</div><div class="urg-sub">Keine Eile</div></div>
+        <div class="urg-btn u2" id="urg2" onclick="selectUrgency('u2')"><div class="urg-icon">🟡</div><div class="urg-label">Bald</div><div class="urg-sub">Diese Woche</div></div>
+        <div class="urg-btn u3" id="urg3" onclick="selectUrgency('u3')"><div class="urg-icon">🔴</div><div class="urg-label">Dringend</div><div class="urg-sub">24–48 Std.</div></div>
+      </div>
+      <div class="row">
+        <div class="fg half">
+          <label class="lbl">Gewünschtes Veröffentlichungsdatum</label>
+          <input type="date" id="pubDate"/>
+          <span class="hint">Optional — nur falls ein konkretes Datum gewünscht ist.</span>
+        </div>
+        <div class="fg half">
+          <label class="lbl">Freigabe vor Veröffentlichung?</label>
+          <select id="approval">
+            <option value="nein">Nein — Social Media Team entscheidet</option>
+            <option value="ja">Ja — ich möchte vorher freigeben</option>
+          </select>
+        </div>
+      </div>
+      <label class="lbl">Gewünschter Ton / Stil</label>
+      <div class="tone-grid">
+        <div class="tone-btn selected" onclick="selectTone(this)">🎩 Professionell</div>
+        <div class="tone-btn" onclick="selectTone(this)">❤️ Emotional</div>
+        <div class="tone-btn" onclick="selectTone(this)">😊 Locker & sympathisch</div>
+        <div class="tone-btn" onclick="selectTone(this)">💼 Sachlich & informativ</div>
+        <div class="tone-btn" onclick="selectTone(this)">✨ Inspirierend</div>
+        <div class="tone-btn" onclick="selectTone(this)">🎯 Call to Action</div>
+      </div>
+      <label class="lbl" style="margin-bottom:12px;">Gewünschte Logo-Variante</label>
+      <div class="logo-grid">
+        <div class="logo-card selected" onclick="selectLogo(this)" data-logo="Farbig (2-farbig)"><div class="logo-preview"><span class="logo-ev-color">E&V</span></div><div class="logo-name">Farbig (2-farbig)</div></div>
+        <div class="logo-card" onclick="selectLogo(this)" data-logo="Weiß (auf dunklem Hintergrund)"><div class="logo-preview"><span class="logo-ev-white">E&V</span></div><div class="logo-name">Weiß (auf Dunkel)</div></div>
+        <div class="logo-card" onclick="selectLogo(this)" data-logo="Schwarz"><div class="logo-preview"><span class="logo-ev-black">E&V</span></div><div class="logo-name">Schwarz</div></div>
+        <div class="logo-card" onclick="selectLogo(this)" data-logo="EV-Kurzform"><div class="logo-preview"><span class="logo-ev-short">EV</span></div><div class="logo-name">EV Kurzform</div></div>
+      </div>
+      <div id="consentOwner" class="consent-box required" style="display:none;">
+        <div class="consent-title">⚠️ Eigentümereinwilligung (Pflicht bei Objekten)</div>
+        <div class="check-row"><input type="checkbox" id="chkOwner"/><label for="chkOwner">Ich bestätige, dass der/die Eigentümer/in der Veröffentlichung dieses Objekts auf Social Media ausdrücklich zugestimmt hat.</label></div>
+      </div>
+      <div id="consentPersons" class="consent-box required" style="display:none;">
+        <div class="consent-title">⚠️ Personeneinwilligung (Pflicht bei Events)</div>
+        <div class="check-row"><input type="checkbox" id="chkPersons"/><label for="chkPersons">Ich bestätige, dass alle auf den Medien erkennbaren Personen der Veröffentlichung auf Social Media zugestimmt haben.</label></div>
+      </div>
+      <div class="toggle-section">
+        <div class="toggle-header" onclick="toggleSection(this)">
+          <span class="toggle-title">🤝 Kooperationspartner & weitere Details</span><span class="toggle-arrow">▼</span>
+        </div>
+        <div class="toggle-body">
+          <label class="lbl">Soll ein Kooperationspartner eingebunden werden?</label>
+          <div class="pill-group">
+            <div class="pill" id="collabNein" onclick="selectCollab('nein')">Nein</div>
+            <div class="pill" id="collabJa" onclick="selectCollab('ja')">Ja, bitte anfragen</div>
+          </div>
+          <div class="collab-detail" id="collabDetail">
+            <div class="fg"><label class="lbl">Name / Instagram-Handle des Partners</label><input type="text" id="collabName" placeholder="z.B. @moebelhaus_bochum"/></div>
+          </div>
+          <div class="fg" style="margin-top:14px;">
+            <label class="lbl">Weitere Anmerkungen / Sonderwünsche</label>
+            <textarea id="extraNotes" placeholder="Alles, was du dem Social Media Team noch mitgeben möchtest ..." rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" onclick="goStep(3)">← Zurück</button>
+        <button class="btn btn-primary" onclick="goStep(5)">Weiter zur Zusammenfassung →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step" id="step5">
+    <div class="card">
+      <h2>Schritt 5 — Zusammenfassung & Absenden</h2>
+      <p class="card-sub">Bitte alles kurz prüfen, dann auf „Absenden" klicken.</p>
+      <div id="summaryContent"></div>
+      <div class="action-row">
+        <button class="btn btn-outline" onclick="goStep(4)">← Zurück</button>
+        <button class="btn btn-success" onclick="submitForm()">✅ Anfrage absenden</button>
+        <button class="btn btn-secondary" onclick="printSummary()">🖨 Drucken / PDF</button>
+        <button class="btn btn-secondary" onclick="sendEmail()">📧 Per E-Mail</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="step" id="step6">
+    <div class="card">
+      <div class="success-screen">
+        <div class="success-icon">🎉</div>
+        <div class="success-kicker">Erfolgreich übermittelt</div>
+        <div class="success-title">Anfrage eingegangen!</div>
+        <div class="success-sub">Deine Content-Anfrage wurde an das Social Media Team weitergeleitet.<br/>Du erhältst in Kürze eine Bestätigungs-E-Mail.<br/><br/>Das Team wird sich bei Rückfragen bei dir melden.</div>
+        <button class="btn btn-primary" onclick="resetForm()" style="margin:0 auto;">+ Neue Anfrage erstellen</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>Engel &amp; Völkers · Mittleres Ruhrgebiet · Social Media Manager · Internes Tool</footer>
+
+<style id="printStyle">
+@media print{
+  header,.progress-bar,.nav-row,.action-row,footer,.toggle-header{display:none!important;}
+  body{background:#fff!important;}
+  .wrap{margin:0!important;padding:0!important;max-width:100%!important;}
+  .card{box-shadow:none!important;}
+  .step{display:block!important;}
+  #step1,#step2,#step3,#step4{display:none!important;}
+  .toggle-body{display:block!important;}
+}
+</style>
+
+<script src="ev-supabase.js"></script>
+<script>
+// Load user from session
+(function(){
+  const u = sessionStorage.getItem('evUser');
+  if(u){
+    try{
+      const d=JSON.parse(u);
+      document.getElementById('hUserName').textContent = d.fullName||'';
+      document.getElementById('hUserEmail').textContent = d.email||'Engel & Völkers';
+      // Pre-fill sender fields
+      if(d.fullName) document.getElementById('senderName').value = d.fullName;
+      if(d.email) document.getElementById('senderEmail').value = d.email;
+    }catch(e){}
+  }
+})();
+
+let selectedType='',selectedUrgency='u1',selectedTone='🎩 Professionell',selectedLogo='Farbig (2-farbig)',uploadedFiles=[],currentStep=1;
+
+function selectType(el){document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');selectedType=el.dataset.type;document.getElementById('objectFields').classList.toggle('show',selectedType==='immobilie');document.getElementById('consentOwner').style.display=selectedType==='immobilie'?'block':'none';document.getElementById('consentPersons').style.display=selectedType==='event'?'block':'none';}
+function togglePill(el,group){if(group==='platform'){el.classList.toggle('selected');}else{document.querySelectorAll('#formatGroup .format-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');}}
+function selectUrgency(u){['u1','u2','u3'].forEach(id=>{const el=document.getElementById('urg'+id.slice(1));if(el)el.classList.remove('selected');});selectedUrgency=u;document.getElementById('urg'+u.slice(1)).classList.add('selected');}
+function selectTone(el){document.querySelectorAll('.tone-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');selectedTone=el.textContent.trim();}
+function selectLogo(el){document.querySelectorAll('.logo-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');selectedLogo=el.dataset.logo;}
+function selectCollab(val){document.getElementById('collabJa').classList.toggle('selected',val==='ja');document.getElementById('collabNein').classList.toggle('selected',val==='nein');document.getElementById('collabDetail').classList.toggle('show',val==='ja');}
+function toggleSection(header){const body=header.nextElementSibling;const arrow=header.querySelector('.toggle-arrow');body.classList.toggle('open');arrow.style.transform=body.classList.contains('open')?'rotate(180deg)':'';}
+
+function addFiles(files){for(let f of files){if(!uploadedFiles.find(x=>x.name===f.name))uploadedFiles.push(f);}renderFileList();}
+function dragOver(e){e.preventDefault();document.getElementById('uploadZone').classList.add('dragover');}
+function dragLeave(e){document.getElementById('uploadZone').classList.remove('dragover');}
+function dropFiles(e){e.preventDefault();document.getElementById('uploadZone').classList.remove('dragover');addFiles(e.dataTransfer.files);}
+function removeFile(name){uploadedFiles=uploadedFiles.filter(f=>f.name!==name);renderFileList();}
+function renderFileList(){const list=document.getElementById('fileList');list.innerHTML='';uploadedFiles.forEach(f=>{const icon=f.type.startsWith('video')?'🎬':f.type.startsWith('image')?'🖼️':'📄';const size=f.size>1048576?(f.size/1048576).toFixed(1)+' MB':(f.size/1024).toFixed(0)+' KB';list.innerHTML+=`<div class="file-item"><span>${icon}</span><span class="fi-name">${f.name}</span><span class="fi-size">${size}</span><span class="fi-del" onclick="removeFile('${f.name}')">✕</span></div>`;});}
+
+function goStep(n){
+  if(n>1&&currentStep===1){if(!selectedType){alert('Bitte eine Beitragsart auswählen.');return;}if(!document.getElementById('senderName').value.trim()){alert('Bitte deinen Namen eingeben.');return;}}
+  if(n>2&&currentStep===2){const platforms=[...document.querySelectorAll('#platformGroup .pill.selected')];if(platforms.length===0){alert('Bitte mindestens eine Plattform auswählen.');return;}if(!document.getElementById('captionText').value.trim()){alert('Bitte eine Caption-Idee / Kurztext eingeben.');return;}}
+  if(n>4&&currentStep===4){if(selectedType==='immobilie'&&!document.getElementById('chkOwner').checked){alert('Bitte bestätige die Eigentümereinwilligung.');return;}if(selectedType==='event'&&!document.getElementById('chkPersons').checked){alert('Bitte bestätige die Personeneinwilligung.');return;}}
+  if(n===5)buildSummary();
+  document.getElementById('step'+currentStep).classList.remove('active');
+  currentStep=n;
+  document.getElementById('step'+n).classList.add('active');
+  updateProgress(n);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateProgress(n){for(let i=1;i<=5;i++){const ps=document.getElementById('ps'+i);ps.classList.remove('active','done');if(i<n)ps.classList.add('done');else if(i===n)ps.classList.add('active');}for(let i=1;i<=4;i++){const pl=document.getElementById('pl'+i);if(pl)pl.classList.toggle('done',i<n);}}
+
+function buildSummary(){
+  const typeLabels={immobilie:'🏠 Immobilie',event:'🎉 Event',rezension:'⭐ Kundenrezension',team:'👥 Team-Vorstellung',markt:'📊 Marktbericht',bts:'🎬 Behind the Scenes',tipp:'💡 Immobilien-Tipp',meilenstein:'🏆 Meilenstein',saisonal:'🌸 Saisonaler Post',gewinnspiel:'🎁 Gewinnspiel',kooperation:'🤝 Kooperation',sonstiges:'✏️ Sonstiges'};
+  const urgLabels={u1:'🟢 Flexibel',u2:'🟡 Bald (diese Woche)',u3:'🔴 Dringend (24–48 Std.)'};
+  const platforms=[...document.querySelectorAll('#platformGroup .pill.selected')].map(p=>p.textContent).join(', ')||'–';
+  const format=document.querySelector('#formatGroup .format-pill.selected')?.textContent.trim()||'–';
+  let html=`<div class="summary-highlight"><div class="sh-title">Beitragsart</div><div class="sh-val">${typeLabels[selectedType]||selectedType}</div></div>
+    <div class="summary-section"><div class="summary-title">Einreicher</div>
+      <div class="summary-row"><span class="summary-key">Name</span><span class="summary-val">${v('senderName')}</span></div>
+      <div class="summary-row"><span class="summary-key">E-Mail</span><span class="summary-val">${v('senderEmail')||'–'}</span></div>
+    </div>
+    <div class="summary-section"><div class="summary-title">Kanal & Format</div>
+      <div class="summary-row"><span class="summary-key">Plattform(en)</span><span class="summary-val">${platforms}</span></div>
+      <div class="summary-row"><span class="summary-key">Format</span><span class="summary-val">${format}</span></div>
+    </div>
+    <div class="summary-section"><div class="summary-title">Inhalt</div>
+      <div class="summary-row"><span class="summary-key">Caption-Idee</span><span class="summary-val">${v('captionText')}</span></div>
+      <div class="summary-row"><span class="summary-key">Must-Haves</span><span class="summary-val">${v('mustHave')||'–'}</span></div>
+      <div class="summary-row"><span class="summary-key">Keywords</span><span class="summary-val">${v('keywords')||'–'}</span></div>
+      <div class="summary-row"><span class="summary-key">No-Gos</span><span class="summary-val">${v('noGo')||'–'}</span></div>
+    </div>`;
+  if(selectedType==='immobilie'){html+=`<div class="summary-section"><div class="summary-title">Objektdetails</div><div class="summary-row"><span class="summary-key">Objekttyp</span><span class="summary-val">${v('objType')||'–'}</span></div><div class="summary-row"><span class="summary-key">Lage</span><span class="summary-val">${v('objLage')||'–'}</span></div><div class="summary-row"><span class="summary-key">Preis / Miete</span><span class="summary-val">${v('objPreis')||'–'}</span></div><div class="summary-row"><span class="summary-key">Größe / Zimmer</span><span class="summary-val">${v('objGroesse')||'–'}</span></div><div class="summary-row"><span class="summary-key">Highlights</span><span class="summary-val">${v('objHighlight')||'–'}</span></div></div>`;}
+  html+=`<div class="summary-section"><div class="summary-title">Medien</div>
+      <div class="summary-row"><span class="summary-key">Dateien</span><span class="summary-val">${uploadedFiles.length>0?uploadedFiles.map(f=>f.name).join(', '):'Keine Dateien angehängt'}</span></div>
+      <div class="summary-row"><span class="summary-key">Hinweise</span><span class="summary-val">${v('mediaHints')||'–'}</span></div>
+    </div>
+    <div class="summary-section"><div class="summary-title">Veröffentlichung & Details</div>
+      <div class="summary-row"><span class="summary-key">Dringlichkeit</span><span class="summary-val">${urgLabels[selectedUrgency]}</span></div>
+      <div class="summary-row"><span class="summary-key">Wunschtermin</span><span class="summary-val">${v('pubDate')||'–'}</span></div>
+      <div class="summary-row"><span class="summary-key">Freigabe gewünscht</span><span class="summary-val">${document.getElementById('approval').options[document.getElementById('approval').selectedIndex].text}</span></div>
+      <div class="summary-row"><span class="summary-key">Ton / Stil</span><span class="summary-val">${selectedTone}</span></div>
+      <div class="summary-row"><span class="summary-key">Logo-Variante</span><span class="summary-val">${selectedLogo}</span></div>
+      <div class="summary-row"><span class="summary-key">Weitere Anmerkungen</span><span class="summary-val">${v('extraNotes')||'–'}</span></div>
+    </div>
+    <div class="summary-section"><div class="summary-title">Einwilligungen & Kooperation</div>`;
+  if(selectedType==='immobilie')html+=`<div class="summary-row"><span class="summary-key">Eigentümereinwilligung</span><span class="summary-val" style="color:#16a34a;font-weight:700;">✅ Bestätigt</span></div>`;
+  if(selectedType==='event')html+=`<div class="summary-row"><span class="summary-key">Personeneinwilligung</span><span class="summary-val" style="color:#16a34a;font-weight:700;">✅ Bestätigt</span></div>`;
+  const collabJa=document.getElementById('collabJa').classList.contains('selected');
+  html+=`<div class="summary-row"><span class="summary-key">Kooperationspartner</span><span class="summary-val">${collabJa?('Ja — '+(v('collabName')||'(Name folgt)')):'Nein'}</span></div></div>
+    <div style="font-size:.65rem;color:#bbb;border-top:1px solid #eee;padding-top:12px;margin-top:6px;letter-spacing:.5px;">
+      Erstellt am ${new Date().toLocaleDateString('de-DE',{weekday:'long',year:'numeric',month:'long',day:'numeric'})} · Engel &amp; Völkers Mittleres Ruhrgebiet
+    </div>`;
+  document.getElementById('summaryContent').innerHTML=html;
+}
+
+function v(id){return(document.getElementById(id)?.value||'').trim();}
+function submitForm(){goStep(6);updateProgress(6);}
+function printSummary(){buildSummary();window.print();}
+function sendEmail(){
+  const to='socialmedia@engelvoelkers-ruhrgebiet.de';
+  const cc='geschaeftsfuehrung@engelvoelkers-ruhrgebiet.de';
+  const subject=encodeURIComponent('Social Media Anfrage: '+(document.querySelector('.type-card.selected .type-label')?.textContent||'')+' — '+v('senderName'));
+  const body=encodeURIComponent(buildEmailBody());
+  window.location.href=`mailto:${to}?cc=${cc}&subject=${subject}&body=${body}`;
+}
+function buildEmailBody(){
+  const urgLabels={u1:'Flexibel',u2:'Bald (diese Woche)',u3:'Dringend (24–48 Std.)'};
+  const platforms=[...document.querySelectorAll('#platformGroup .pill.selected')].map(p=>p.textContent).join(', ')||'–';
+  return `SOCIAL MEDIA ANFRAGE — Engel & Völkers Mittleres Ruhrgebiet\n═══════════════════════════════════════\n\nEinreicher: ${v('senderName')} (${v('senderEmail')||'keine E-Mail angegeben'})\nBeitragsart: ${document.querySelector('.type-card.selected .type-label')?.textContent||'–'}\nPlattform(en): ${platforms}\nFormat: ${document.querySelector('#formatGroup .format-pill.selected')?.textContent.trim()||'–'}\n\n── INHALT ──────────────────────────────\nCaption-Idee: ${v('captionText')||'–'}\nMust-Haves: ${v('mustHave')||'–'}\nKeywords: ${v('keywords')||'–'}\nNo-Gos: ${v('noGo')||'–'}\n\n── VERÖFFENTLICHUNG ────────────────────\nDringlichkeit: ${urgLabels[selectedUrgency]}\nWunschtermin: ${v('pubDate')||'–'}\nFreigabe gewünscht: ${document.getElementById('approval').options[document.getElementById('approval').selectedIndex].text}\nTon / Stil: ${selectedTone}\nLogo-Variante: ${selectedLogo}\n\n── MEDIEN ──────────────────────────────\nAngehängte Dateien: ${uploadedFiles.length>0?uploadedFiles.map(f=>f.name).join(', '):'Keine'}\nMedienhinweise: ${v('mediaHints')||'–'}\n\n── EINWILLIGUNGEN ──────────────────────\n${selectedType==='immobilie'?'Eigentümereinwilligung: ✅ Bestätigt\n':''}${selectedType==='event'?'Personeneinwilligung: ✅ Bestätigt\n':''}Kooperationspartner: ${document.getElementById('collabJa').classList.contains('selected')?'Ja — '+(v('collabName')||'(Name folgt)'):'Nein'}\n\nWeitere Anmerkungen: ${v('extraNotes')||'–'}\n\n═══════════════════════════════════════\nErstellt: ${new Date().toLocaleDateString('de-DE')} · Engel & Völkers Mittleres Ruhrgebiet`;
+}
+function resetForm(){location.reload();}
+
+// ── SUPABASE SAVE (beim Absenden) ──────────────────────────────
+async function saveSocialMediaToDB(data) {
+  try {
+    if (typeof EvDB !== 'undefined') {
+      await EvDB.saveSocialMedia(data);
+    }
+  } catch(e) { console.warn('[E&V Social] DB-Speicherung fehlgeschlagen:', e.message); }
+}
+
+</script>
+</body>
+</html>

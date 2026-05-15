@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Weekly Check-In | Engel &amp; Völkers</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --red:#C41E3A;--dark:#1a1a1a;--mid:#e0e0e0;--light:#f7f6f4;--white:#fff;
+  --green:#2d7a4f;--amber:#c17b00;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Raleway','Segoe UI',Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--light);color:var(--dark);min-height:100vh;font-size:15px;}
+
+/* HEADER */
+header{background:var(--white);border-bottom:1px solid #e8e8e8;padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.hlogo{display:flex;align-items:center;gap:16px;}
+.hlogo-ev{width:36px;height:36px;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--serif);font-weight:700;font-size:.85rem;letter-spacing:-.5px;flex-shrink:0;}
+.hlogo-name{font-family:var(--serif);font-size:1.05rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dark);}
+.hlogo-sub{font-size:.6rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#bbb;margin-top:2px;}
+.hright{display:flex;align-items:center;gap:20px;}
+.hback{font-size:.62rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);text-decoration:none;}
+.hback:hover{text-decoration:underline;}
+.huser-info{text-align:right;}
+.huser-name{font-size:.78rem;font-weight:600;color:var(--dark);}
+.huser-email{font-size:.6rem;color:#bbb;letter-spacing:.3px;}
+
+/* WRAP */
+.wrap{max-width:800px;margin:40px auto;padding:0 20px;display:flex;flex-direction:column;gap:20px;}
+
+/* PAGE HEADER */
+.page-header{border-left:2px solid var(--red);padding-left:20px;margin-bottom:0;}
+.page-eyebrow{font-size:.6rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+.page-title{font-family:var(--serif);font-size:2rem;font-weight:300;color:var(--dark);letter-spacing:-.5px;}
+
+/* LIVE SCORE */
+#liveScoreBar{display:none;}
+.score-panel{background:var(--dark);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;}
+.sp-left .sp-label{font-size:.55rem;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:6px;}
+.sp-left .sp-val{font-family:var(--serif);font-size:1.8rem;font-weight:300;color:#fff;letter-spacing:-1px;}
+.sp-left .sp-sub{font-size:.65rem;color:#666;margin-top:4px;letter-spacing:.5px;}
+.sp-right{text-align:right;}
+.sp-emoji{font-size:1.5rem;margin-bottom:4px;}
+.sp-msg{font-size:.72rem;font-weight:600;color:#aaa;max-width:220px;line-height:1.5;}
+.prog-bar-wrap{background:#111;padding:10px 32px 16px;}
+.prog-meta{display:flex;justify-content:space-between;font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:#555;margin-bottom:6px;}
+.prog-track{height:2px;background:#333;width:100%;}
+.prog-fill{height:100%;background:var(--red);transition:width .4s;}
+
+/* CARD */
+.card{background:var(--white);padding:36px 40px;border-top:2px solid #eaeaea;}
+.card h2{font-size:.6rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--red);margin-bottom:20px;font-weight:700;}
+.card-intro{font-size:.82rem;color:#666;line-height:1.7;margin-bottom:24px;border-left:2px solid var(--red);padding-left:16px;}
+
+/* ROLE CARDS */
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#eee;margin-bottom:28px;}
+.role-card{border:none;background:var(--white);padding:24px 20px;text-align:center;cursor:pointer;transition:all .2s;}
+.role-card:hover{background:#fafafa;}
+.role-card.selected{background:#fdf0f2;outline:2px solid var(--red);}
+.role-icon{font-size:1.6rem;margin-bottom:10px;}
+.role-name{font-size:.82rem;font-weight:700;color:var(--dark);letter-spacing:.3px;}
+.role-desc{font-size:.68rem;color:#aaa;margin-top:6px;line-height:1.5;}
+
+/* FORM */
+label.lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#aaa;display:block;margin-bottom:8px;}
+.req{color:var(--red);}
+input[type=text],input[type=number],select,textarea{
+  border:none;border-bottom:1.5px solid #ddd;
+  padding:10px 0;font-size:.88rem;color:var(--dark);
+  background:transparent;transition:border-color .2s;width:100%;
+  font-family:var(--sans);
+}
+input:focus,select:focus,textarea:focus{outline:none;border-bottom-color:var(--dark);}
+select{-webkit-appearance:none;cursor:pointer;}
+.fg{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.row{display:flex;gap:16px;flex-wrap:wrap;}
+.half{flex:1;min-width:160px;}
+.hint{font-size:.68rem;color:#aaa;margin-top:5px;line-height:1.5;}
+
+/* CONSENT */
+.consent-box{border-left:3px solid var(--amber);padding:14px 18px;margin-bottom:24px;background:#fdf8ec;}
+.consent-box.signed{border-left-color:var(--green);background:#f0faf5;}
+.check-row{display:flex;align-items:flex-start;gap:12px;}
+.check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--red);flex-shrink:0;margin-top:3px;}
+.check-row label{font-size:.8rem;color:#666;line-height:1.6;cursor:pointer;}
+
+/* QUESTION CARDS */
+.q-card{background:var(--white);border-left:3px solid var(--mid);transition:border-color .3s;margin-bottom:12px;}
+.q-card.answered-full{border-left-color:var(--green);}
+.q-card.answered-partial{border-left-color:var(--amber);}
+.q-card.answered-no{border-left-color:var(--red);}
+.q-card.answered-na{border-left-color:#aaa;}
+.q-header{padding:18px 24px 16px;display:flex;align-items:flex-start;gap:14px;}
+.q-num{width:22px;height:22px;border:1.5px solid var(--dark);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.65rem;flex-shrink:0;margin-top:2px;}
+.q-card.answered-full .q-num{background:var(--green);border-color:var(--green);color:#fff;}
+.q-card.answered-partial .q-num{background:var(--amber);border-color:var(--amber);color:#fff;}
+.q-card.answered-no .q-num{background:var(--red);border-color:var(--red);color:#fff;}
+.q-card.answered-na .q-num{background:#aaa;border-color:#aaa;color:#fff;}
+.q-head-right{flex:1;}
+.q-title{font-size:.88rem;font-weight:700;color:var(--dark);line-height:1.4;letter-spacing:.2px;}
+.q-subtitle{font-size:.62rem;color:#aaa;margin-top:4px;letter-spacing:.5px;text-transform:uppercase;}
+.q-status{font-size:.95rem;flex-shrink:0;margin-top:2px;}
+.q-body{padding:0 24px 20px;}
+
+/* ANSWER BUTTONS */
+.answer-group{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:#eee;margin:12px 0;}
+@media(max-width:500px){.answer-group{grid-template-columns:1fr;}}
+.ans-btn{border:none;background:var(--white);padding:10px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px;font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.3px;color:#777;text-transform:uppercase;}
+.ans-btn:hover{background:#f5f5f5;color:var(--dark);}
+.ans-btn.sel-full{background:#f0faf5;color:var(--green);outline:1.5px solid var(--green);}
+.ans-btn.sel-partial{background:#fdf8ec;color:var(--amber);outline:1.5px solid var(--amber);}
+.ans-btn.sel-no{background:#fdf0f2;color:var(--red);outline:1.5px solid var(--red);}
+.ans-btn.sel-na{background:#f5f5f5;color:#999;outline:1.5px solid #ccc;}
+
+/* NUDGE */
+.nudge-box{border-left:2px solid var(--amber);padding:10px 14px;font-size:.75rem;color:#7a5200;line-height:1.6;margin-bottom:10px;background:#fdf8ec;display:none;}
+.nudge-box.alert{border-left-color:var(--red);color:#8b1a2a;background:#fdf0f2;}
+.nudge-box.show{display:block;}
+.nudge-box strong{display:block;font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+
+/* INFO TOGGLE */
+.info-toggle{font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:6px;margin-bottom:10px;user-select:none;}
+.info-toggle:hover{text-decoration:underline;}
+.info-content{background:var(--light);padding:12px 16px;font-size:.75rem;color:#666;line-height:1.7;display:none;margin-bottom:12px;border-left:2px solid var(--mid);}
+.info-content.show{display:block;}
+.info-content ul{padding-left:14px;}
+.info-content li{margin-bottom:3px;}
+
+/* COMMENT */
+.comment-label{font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;font-weight:700;display:block;margin-bottom:6px;}
+textarea{border:1.5px solid #ddd;padding:10px 12px;font-size:.82rem;width:100%;min-height:52px;resize:vertical;font-family:var(--sans);background:#fafafa;}
+textarea:focus{outline:none;border-color:var(--dark);background:var(--white);}
+
+/* SCALE ROW */
+.scale-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#eee;margin:16px 0;}
+.scale-item{background:var(--white);padding:12px 8px;text-align:center;}
+.scale-icon{font-size:1rem;}
+.scale-pts{font-size:.72rem;font-weight:700;color:var(--dark);margin-top:4px;}
+.scale-lbl{font-size:.62rem;color:#aaa;margin-top:2px;letter-spacing:.3px;}
+
+/* BUTTONS */
+.nav-row{display:flex;gap:12px;justify-content:space-between;margin-top:24px;}
+.btn{padding:12px 28px;border:none;font-family:var(--sans);font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;}
+.btn-primary{background:var(--red);color:#fff;}
+.btn-primary:hover{background:#a01830;}
+.btn-secondary{background:var(--light);color:#888;border:1px solid var(--mid);}
+.btn-secondary:hover{background:var(--mid);color:var(--dark);}
+.btn-dark{background:var(--dark);color:#fff;}
+.btn-dark:hover{background:#333;}
+.btn-outline{background:var(--white);border:1.5px solid var(--red);color:var(--red);}
+.btn-outline:hover{background:#fdf0f2;}
+
+/* SUMMARY */
+.summary-header{background:var(--dark);padding:28px 32px;margin-bottom:20px;}
+.sh-kw{font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:8px;}
+.sh-score{font-family:var(--serif);font-size:3rem;font-weight:200;color:#fff;letter-spacing:-2px;line-height:1;}
+.sh-sub{font-size:.7rem;color:#555;margin-top:6px;letter-spacing:.5px;}
+.sh-grade{display:inline-block;margin-top:12px;padding:5px 14px;font-size:.6rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;}
+.grade-gold{background:var(--amber);color:#fff;}
+.grade-green{background:var(--green);color:#fff;}
+.grade-mid{background:#888;color:#fff;}
+.grade-red{background:var(--red);color:#fff;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--mid);margin-bottom:20px;}
+.stat-box{background:var(--white);padding:16px;text-align:center;}
+.stat-val{font-family:var(--serif);font-size:1.6rem;font-weight:300;color:var(--dark);}
+.stat-lbl{font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-top:4px;}
+.open-box{border-left:3px solid var(--red);background:#fff8f8;padding:16px 18px;margin-bottom:20px;}
+.open-title{font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:14px;}
+.open-item{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #fee2e2;font-size:.78rem;}
+.open-item:last-child{border-bottom:none;}
+.open-dot{width:5px;height:5px;background:var(--red);flex-shrink:0;margin-top:7px;}
+.detail-title{font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:#aaa;font-weight:700;margin-bottom:14px;padding-top:20px;border-top:1px solid var(--mid);}
+.d-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--light);font-size:.8rem;}
+.d-num{width:18px;font-weight:700;color:#ccc;flex-shrink:0;margin-top:1px;font-size:.68rem;}
+.d-right{flex:1;}
+.d-title{font-weight:700;color:var(--dark);}
+.d-comment{font-size:.7rem;color:#aaa;margin-top:3px;font-style:italic;}
+.d-ans{flex-shrink:0;font-weight:700;font-size:.65rem;padding:3px 10px;letter-spacing:.5px;text-transform:uppercase;}
+.da-full{background:#e8f5ee;color:var(--green);}
+.da-partial{background:#fdf5e0;color:var(--amber);}
+.da-no{background:#fdeaed;color:var(--red);}
+.da-na{background:#f0f0f0;color:#888;}
+.consent-stamp{border:1px solid var(--mid);padding:14px 16px;font-size:.7rem;color:#888;line-height:1.6;margin-top:20px;background:var(--light);}
+
+/* STEPS */
+.step{display:none;}
+.step.active{display:flex;flex-direction:column;gap:16px;}
+
+/* SUCCESS */
+.success-screen{text-align:center;padding:56px 24px;}
+.success-icon{font-size:2.8rem;margin-bottom:20px;}
+.success-kicker{font-size:.6rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--red);margin-bottom:10px;font-weight:700;}
+.success-title{font-family:var(--serif);font-size:1.8rem;font-weight:300;color:var(--dark);letter-spacing:-.5px;margin-bottom:12px;}
+.success-sub{font-size:.8rem;color:#888;line-height:1.7;margin-bottom:32px;}
+.action-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+
+footer{text-align:center;color:#bbb;font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;padding:24px;border-top:1px solid var(--mid);background:var(--white);}
+
+@media(max-width:640px){
+  header{padding:0 20px;}
+  .card{padding:24px 20px;}
+  .role-grid{grid-template-columns:1fr;}
+  .scale-row{grid-template-columns:repeat(2,1fr);}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .nav-row,.action-row{flex-direction:column;}
+  .btn{justify-content:center;}
+  .score-panel,.prog-bar-wrap{padding-left:20px;padding-right:20px;}
+}
+
+@media print{
+  header,#liveScoreBar,.nav-row,.action-row,footer,.info-toggle,.ans-btn,.q-header{display:none!important;}
+  body{background:#fff!important;}
+  .wrap{margin:0!important;padding:0!important;max-width:100%!important;}
+  .card{border-top:none!important;}
+  .step{display:flex!important;flex-direction:column;gap:12px;}
+  #step1,#step2,#step4{display:none!important;}
+  #step3{display:flex!important;}
+  .info-content,.nudge-box{display:none!important;}
+  .q-body{display:block!important;}
+  .summary-header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .stats-row{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hlogo">
+    <div class="hlogo-ev">E&amp;V</div>
+    <div>
+      <div class="hlogo-name">Engel &amp; Völkers</div>
+      <div class="hlogo-sub">Weekly Check-In</div>
+    </div>
+  </div>
+  <div class="hright">
+    <a class="hback" href="ev-portal.html">← Portal</a>
+    <div class="huser-info">
+      <div class="huser-name" id="hUserName"></div>
+      <div class="huser-email" id="hUserEmail"></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- LIVE SCORE -->
+<div id="liveScoreBar">
+  <div class="score-panel">
+    <div class="sp-left">
+      <div class="sp-label">Aktueller Score</div>
+      <div class="sp-val" id="lsVal">– / – Pkt.</div>
+      <div class="sp-sub" id="lsPercent">Noch keine Antworten</div>
+    </div>
+    <div class="sp-right">
+      <div class="sp-emoji" id="lsEmoji">🏁</div>
+      <div class="sp-msg" id="lsMsg">Starte deinen Check-In!</div>
+    </div>
+  </div>
+  <div class="prog-bar-wrap">
+    <div class="prog-meta"><span id="progLabel">0 von 10 Fragen</span><span id="progPct">0 %</span></div>
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- STEP 1 -->
+<div class="step active" id="step1">
+  <div class="page-header">
+    <div class="page-eyebrow">Mittleres Ruhrgebiet · Wöchentliche Selbstreflexion</div>
+    <div class="page-title">Weekly Check-In</div>
+  </div>
+  <div class="card">
+    <h2>Start — Einverständnis & Angaben</h2>
+    <div class="card-intro">Der Weekly Check-In ist dein wöchentliches Instrument zur Qualitätssicherung und persönlichen Weiterentwicklung. Beantworte alle Fragen ehrlich — nicht für andere, sondern für deinen eigenen Fortschritt.</div>
+    <div class="consent-box" id="consentBox">
+      <div class="check-row">
+        <input type="checkbox" id="consent1" onchange="checkConsent()"/>
+        <label for="consent1"><strong>Wahrheitspflicht — ich bestätige:</strong><br/>Alle meine Angaben in diesem Check-In entsprechen der Wahrheit. Ich beantworte jede Frage nach bestem Wissen und Gewissen und bin mir bewusst, dass dieses Dokument als interne Grundlage für Entwicklungsgespräche genutzt werden kann.</label>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="lbl">Vollständiger Name <span class="req">*</span></label>
+      <input type="text" id="userName" placeholder="Vorname Nachname"/>
+    </div>
+    <div class="row">
+      <div class="fg half">
+        <label class="lbl">Kalenderwoche <span class="req">*</span></label>
+        <select id="userKW"></select>
+      </div>
+      <div class="fg half">
+        <label class="lbl">Jahr <span class="req">*</span></label>
+        <select id="userYear"></select>
+      </div>
+    </div>
+    <label class="lbl" style="margin-bottom:12px;">Meine Rolle <span class="req">*</span></label>
+    <div class="role-grid">
+      <div class="role-card" id="roleIB" onclick="selectRole('IB')">
+        <div class="role-icon">🏠</div>
+        <div class="role-name">Immobilienberater / in</div>
+        <div class="role-desc">Ich betreue Käufer &amp; Verkäufer und bin im direkten Kundenkontakt tätig.</div>
+      </div>
+      <div class="role-card" id="roleKT" onclick="selectRole('KT')">
+        <div class="role-icon">⚙️</div>
+        <div class="role-name">Kernteam</div>
+        <div class="role-desc">Ich arbeite den Beratern und der Geschäftsführung zu und halte den Betrieb am Laufen.</div>
+      </div>
+    </div>
+    <div class="nav-row" style="justify-content:flex-end;">
+      <button class="btn btn-primary" onclick="startCheckin()">Check-In starten →</button>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="step" id="step2"></div>
+
+<!-- STEP 3 -->
+<div class="step" id="step3">
+  <div class="card">
+    <h2>Wochenauswertung</h2>
+    <div id="summaryContent"></div>
+    <div class="action-row">
+      <button class="btn btn-outline" onclick="goStep(2)">← Zurück</button>
+      <button class="btn btn-primary" onclick="submitCheckin()">✅ Abschließen &amp; bestätigen</button>
+      <button class="btn btn-secondary" onclick="printSummary()">🖨 PDF / Drucken</button>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="step" id="step4">
+  <div class="card">
+    <div class="success-screen">
+      <div class="success-icon">🏆</div>
+      <div class="success-kicker">Check-In abgeschlossen</div>
+      <div class="success-title">Gut gemacht — auf die nächste Woche!</div>
+      <div class="success-sub">Dein Weekly Check-In wurde erfolgreich eingereicht.<br/>Konstanz ist der Schlüssel zum Erfolg — bleib dran.<br/><br/><em style="font-size:.72rem;color:#ccc;">Alle Angaben wurden wahrheitsgemäß bestätigt und sind intern dokumentiert.</em></div>
+      <button class="btn btn-primary" onclick="location.reload()" style="margin:0 auto;">Neuen Check-In starten</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<footer>Engel &amp; Völkers · Mittleres Ruhrgebiet · Weekly Check-In · Nur für Teammitglieder</footer>
+
+<script src="ev-supabase.js"></script>
+<script>
+// Load user context
+(function(){
+  const u = sessionStorage.getItem('evUser');
+  if(u){
+    try{
+      const d = JSON.parse(u);
+      document.getElementById('hUserName').textContent = d.fullName||'';
+      document.getElementById('hUserEmail').textContent = d.email||'Engel & Völkers';
+      // Pre-fill name field
+      setTimeout(function(){
+        const un = document.getElementById('userName');
+        if(un && !un.value && d.fullName) un.value = d.fullName;
+      }, 50);
+    }catch(e){}
+  }
+})();
+
+const QUESTIONS = {
+  IB: [
+    {title:"Farmarbeit & Eigentümerakquise",subtitle:"Lokale Präsenz · Akquise · Empfehlungsmarketing",
+     info:["Alle Farmaktivitäten im eigenen Gebiet erledigt?","Eigentümerkontakte gepflegt und neue angesprochen?","Lokale Sichtbarkeit aktiv gestaltet?","Empfehlungsmarketing betrieben?"],
+     nudge:{partial:": Farmarbeit wirkt wie Training — nur wer regelmäßig ran geht, wird stärker. Welche konkreten Maßnahmen fehlen noch?",no:": Farmarbeit ist das Fundament deiner Pipeline. Ohne regelmäßige Präsenz verlierst du langfristig Marktanteile."}},
+    {title:"Suchkunden-Onboarding & Bedarfsanalyse",subtitle:"Erstkontakt · Suchprofil · A/B/C-Klassifizierung",
+     info:["Alle neuen Suchkunden vollständig und persönlich onboarded?","Vollständiges Profil mit Motivation und Dringlichkeit erfasst?","A/B/C-Klassifizierung vorgenommen?","Bedarfsanalyse sauber dokumentiert?"],
+     nudge:{partial:": Ein halbfertiges Onboarding kostet dich später doppelte Zeit.",no:": Ohne vollständiges Onboarding kannst du Suchkunden nicht optimal betreuen."}},
+    {title:"Lead-Pipeline & Datenqualität",subtitle:"Pipeline-Pflege · CRM · Kontaktbereinigung",
+     info:["Lead-Pipeline geprüft und bereinigt?","Anreden, Datensätze und Kontaktdaten aktualisiert?","Bestehende Kontakte nachgefasst?","Umschlüsselungen und Aktualität sichergestellt?"],
+     nudge:{partial:": Eine saubere Pipeline ist dein Kompass. Unvollständige Daten führen zu verpassten Chancen.",no:": Schlechte Datenqualität kostet bares Geld."}},
+    {title:"Eigentümer- & Objektzuordnung",subtitle:"Eigentümeraufnahme · Objektanlage · Dokumentation",
+     info:["Alle Eigentümer korrekt im System aufgenommen?","Objekte angelegt und dem richtigen Gebiet zugeordnet?","Herkunft, Gutschein und Aufmerksamkeitsquelle dokumentiert?","E-Mail-Kommunikation vollständig abgelegt?"],
+     nudge:{partial:": Fehlende Zuordnungen verursachen Chaos im Team.",no:": Ohne korrekte Zuordnungen kann das Kernteam nicht sauber weiterarbeiten."}},
+    {title:"Einwertungsvorbereitung & Bewertungsqualität",subtitle:"Tim Online · Boris NRW · Marktberichte · Plausibilität",
+     info:["Alle Einwertungen fundiert und vollständig vorbereitet?","Tim Online, Google Maps, Boris NRW und Marktberichte genutzt?","Plausibilitätsprüfung durchgeführt?","Erkennbare Risikopunkte dokumentiert?"],
+     nudge:{partial:": Eine lückenhafte Einwertung kann teuer werden.",no:": Ohne sorgfältige Vorbereitung riskierst du Fehlbewertungen."}},
+    {title:"Eigentümerprozess, Präsentation & Aktivstellung",subtitle:"Präsentation · Exposé-Freigabe · Aktivstellung",
+     info:["Alle Präsentationen durchgeführt und Zustimmung eingeholt?","Exposé-Freigaben fristgerecht umgesetzt?","Aktivstellung intern kommuniziert?","Zusammenarbeit mit Kernteam sichergestellt?"],
+     nudge:{partial:": Jede Verzögerung im Eigentümerprozess kostet Vertrauen.",no:": Offene Eigentümerprozesse blockieren deine Pipeline."}},
+    {title:"Besichtigungen, Kundenführung & Nachfassen",subtitle:"Besichtigungen · Soll-Ist-Abgleich · Nachfassgespräche",
+     info:["Alle Besichtigungen vorbereitet und individuell durchgeführt?","Nachfassgespräche zeitnah geführt?","Suchprofile bei Bedarf angepasst?","Bordsteinkonferenz und Folgetermin vereinbart?"],
+     nudge:{partial:": Nachfassen ist Gold. Wer nicht nachfasst, verliert Interessenten.",no:": Keine Nachfassgespräche bedeuten verlorene Kunden."}},
+    {title:"Finanzierungsprüfung & Angebotsfähigkeit",subtitle:"Finanzierungsbestätigung · Eigenkapital · BOOT-Qualität",
+     info:["Finanzierungsfähigkeit aller relevanten Interessenten geprüft?","Eigenkapitalnachweise und Bestätigungen eingeholt?","Keine unfertigen BOOTs abgegeben?","Angebotsprozesse vollständig und handlungsfähig?"],
+     nudge:{partial:": Ein ungeprüfter Interessent ist ein Risiko.",no:": Ohne Finanzierungsprüfung riskierst du Platzer kurz vor dem Abschluss."}},
+    {title:"Dokumentation, Systempflege & Prozesskonformität",subtitle:"EVA · EFA · CRM · Drive · Nachfasslogik",
+     info:["Alle Vorgänge zeitnah im System dokumentiert?","Buchungen, Freigaben und Nachfassschritte vollständig erfasst?","Keine Umgehung interner Prozesse?","Systemdisziplin durchgängig eingehalten?"],
+     nudge:{partial:": Fehlende Dokumentation ist wie ein Spiel ohne Spielstand.",no:": Ohne saubere Dokumentation verlierst du den Überblick."}},
+    {title:"Zusammenarbeit, Übergaben & Eskalation",subtitle:"Kernteam · Übergaben · Transparenz · Eskalation",
+     info:["Alle Übergaben vollständig und rechtzeitig erfolgt?","Zuarbeit ans Kernteam korrekt kommuniziert?","Unsicherheiten rechtzeitig eskaliert?","E-Mail-Kommunikation vollständig und transparent?"],
+     nudge:{partial:": Das Team kann nur so gut sein wie seine Kommunikation.",no:": Fehlende Übergaben blockieren das ganze Team."}}
+  ],
+  KT: [
+    {title:"Standortorganisation & Betriebsbereitschaft",subtitle:"Shopordnung · Sauberkeit · Repräsentativität",
+     info:["Shopordnung und Sauberkeit vollständig sichergestellt?","Küche, Theke, Kaffeemaschine, Spülmaschine geprüft?","Shop-TV, Lichter, Buchsbäume, Teppich gepflegt?","Verbrauchsmaterialien kontrolliert und aufgefüllt?"],
+     nudge:{partial:": Der Shop ist unser Aushängeschild.",no:": Ein unordentlicher Shop schadet unserem ersten Eindruck."}},
+    {title:"Clean Desk & Ordnungsstandards",subtitle:"Clean Desk Policy · Arbeitsplätze · Besprechungsräume",
+     info:["Clean Desk Policy konsequent eingehalten?","Alle Arbeitsplätze ordentlich und frei?","Besprechungsräume in sauberem Zustand?","Professioneller Gesamteindruck gewährleistet?"],
+     nudge:{partial:": Ordnung ist kein Detail — sie ist Standard.",no:": Die Clean Desk Policy ist nicht optional."}},
+    {title:"Empfang, Telefon & Terminvorbereitung",subtitle:"Starface · Telefonnotizen · Kalender · Kundenempfang",
+     info:["Alle Anrufe über Starface korrekt angenommen und dokumentiert?","Kalenderüberblick täglich geprüft?","Konferenzraum für alle Termine vorbereitet?","Begrüßungsstandard bei Kunden eingehalten?"],
+     nudge:{partial:": Der erste Eindruck zählt — am Telefon wie persönlich.",no:": Empfang und Telefonannahme sind das Gesicht unseres Büros."}},
+    {title:"Postbearbeitung",subtitle:"Briefkastenleerung · Digitalisierung · Weiterleitung",
+     info:["Briefkasten täglich geleert?","Gesamte Post vollständig digitalisiert?","Post gemäß interner Anweisung weitergeleitet?","Priorisierung korrekt vorgenommen?"],
+     nudge:{partial:": Unbearbeitete Post kann wichtige Fristen enthalten.",no:": Liegen gebliebene Post ist ein Risiko."}},
+    {title:"Material-, Auslagen- & Marketingmanagement",subtitle:"Marketingmaterial · Schaufenster · Kampagnen · Bestände",
+     info:["Schaufensterauslage aktuell und ansprechend?","Marketingmaterialien, Tüten, Merch und Blöcke auf Lager?","Zeitschriften aktuell und gepflegt?","Brand-Portal-Kampagnen und saisonale Signaturen aktuell?"],
+     nudge:{partial:": Unser Auftritt nach außen beginnt im Shop.",no:": Fehlende Materialien schwächen unseren Marktauftritt."}},
+    {title:"Zuarbeit für Berater & operative Unterstützung",subtitle:"QAA · Vollmacht · Dokumente · Ablage",
+     info:["Alle QAA-Dokumente erstellt und abgelegt?","Vollmachten, Objektnachweise und Kaufabsichtserklärungen vollständig?","Notarreservierungen rechtzeitig vorgenommen?","Allgemeine Berater-Zuarbeit vollständig erledigt?"],
+     nudge:{partial:": Die Berater sind auf dich angewiesen.",no:": Fehlende Zuarbeit blockiert den Vertrieb."}},
+    {title:"Objektunterlagen, Drive, EFA & Aktivierungsvorbereitung",subtitle:"Grundbuch · Exposé-Prüfung · Drive-Struktur",
+     info:["Alle Objektunterlagen vollständig bestellt und geprüft?","Drive-Struktur sauber und vollständig?","Exposé und QAA vor Aktivierung geprüft?","Geldwäschebogen, Ausweise und Vollmacht vorhanden?","EFA-Prüfung und Aktivierungsfreigabe erteilt?"],
+     nudge:{partial:": Fehlende Unterlagen stoppen die Vermarktung.",no:": Ohne vollständige Unterlagen kann kein Objekt aktiviert werden."}},
+    {title:"Präsentationen, Notartermine & vertriebsnahe Vorbereitung",subtitle:"Drucken · Binden · Notartüten · Visitenkarten",
+     info:["Alle Präsentationen gedruckt, gebunden und verpackt?","Notartüten vollständig und rechtzeitig vorbereitet?","Visitenkarten und Exposés verfügbar?","Terminnahe Materialien vollständig bereitgestellt?"],
+     nudge:{partial:": Fehlende Unterlagen beim Kundentermin sind vermeidbar.",no:": Nicht vorbereitete Termine kosten Vertrauen."}},
+    {title:"Homepage, Inhalte & Markenpflege",subtitle:"Homepagepflege · Mitarbeiter · Signaturen · Kampagnen",
+     info:["Homepage-Inhalte aktuell und vollständig?","Neue Mitarbeiter korrekt angelegt?","Signaturen aller Mitarbeiter geprüft und aktualisiert?","Kampagnen und Markenmaßnahmen umgesetzt?"],
+     nudge:{partial:": Unsere Außendarstellung ist unser Gesicht.",no:": Veraltete Inhalte wirken unprofessionell."}}
+  ]
+};
+
+const ANS_OPTIONS=[
+  {key:"full",  label:"Vollständig erledigt",icon:"✅",cls:"sel-full", pts:3},
+  {key:"partial",label:"Teilweise erledigt", icon:"🔶",cls:"sel-partial",pts:2},
+  {key:"no",    label:"Nicht erledigt",       icon:"❌",cls:"sel-no",  pts:1},
+  {key:"na",    label:"Nicht angefallen",     icon:"➖",cls:"sel-na",  pts:null}
+];
+const ANS_LABEL={full:"Vollständig",partial:"Teilweise",no:"Nicht erledigt",na:"Nicht angefallen"};
+const ANS_CLS={full:"da-full",partial:"da-partial",no:"da-no",na:"da-na"};
+const ANS_ICON={full:"✅",partial:"🔶",no:"❌",na:"➖"};
+
+let selectedRole="",answers=[],currentStep=1;
+
+(function init(){
+  const kw=document.getElementById("userKW");
+  for(let i=1;i<=53;i++) kw.innerHTML+=`<option value="${i}">KW ${i}</option>`;
+  const now=new Date();
+  const d=new Date(Date.UTC(now.getFullYear(),0,4));
+  const dayNum=Math.round((now-d)/(864e5))+d.getDay()+1;
+  kw.value=Math.max(1,Math.min(53,Math.ceil(dayNum/7)));
+  const yr=document.getElementById("userYear");
+  const y=now.getFullYear();
+  for(let i=y-1;i<=y+1;i++) yr.innerHTML+=`<option value="${i}"${i===y?" selected":""}>${i}</option>`;
+})();
+
+function checkConsent(){document.getElementById("consentBox").classList.toggle("signed",document.getElementById("consent1").checked);}
+function selectRole(r){selectedRole=r;document.getElementById("roleIB").classList.toggle("selected",r==="IB");document.getElementById("roleKT").classList.toggle("selected",r==="KT");}
+
+function startCheckin(){
+  if(!document.getElementById("consent1").checked){alert("Bitte bestätige zunächst die Wahrheitspflicht.");return;}
+  if(!document.getElementById("userName").value.trim()){alert("Bitte gib deinen vollständigen Namen ein.");return;}
+  if(!selectedRole){alert("Bitte wähle deine Rolle aus.");return;}
+  const qs=QUESTIONS[selectedRole];
+  answers=qs.map(()=>({ans:null,comment:""}));
+  buildQuestions(qs);
+  goStep(2);
+  document.getElementById("liveScoreBar").style.display="block";
+  updateScore();
+}
+
+function buildQuestions(qs){
+  const c=document.getElementById("step2");c.innerHTML="";
+  const intro=document.createElement("div");
+  intro.className="card";
+  intro.innerHTML=`<h2>${qs.length} Wochenfragen — ${selectedRole==="IB"?"Immobilienberater/in":"Kernteam"}</h2>
+    <div class="card-intro">Beantworte jede Frage ehrlich. Bei „Teilweise" oder „Nicht erledigt" ist ein Kommentar besonders wertvoll — für dich und für das Entwicklungsgespräch.</div>
+    <div class="scale-row">
+      <div class="scale-item"><div class="scale-icon">✅</div><div class="scale-pts">3 Punkte</div><div class="scale-lbl">Vollständig</div></div>
+      <div class="scale-item"><div class="scale-icon">🔶</div><div class="scale-pts">2 Punkte</div><div class="scale-lbl">Teilweise</div></div>
+      <div class="scale-item"><div class="scale-icon">❌</div><div class="scale-pts">1 Punkt</div><div class="scale-lbl">Nicht erledigt</div></div>
+      <div class="scale-item"><div class="scale-icon">➖</div><div class="scale-pts">Neutral</div><div class="scale-lbl">Nicht angefallen</div></div>
+    </div>`;
+  c.appendChild(intro);
+  qs.forEach((q,i)=>{
+    const card=document.createElement("div");
+    card.className="q-card";
+    card.id=`qcard_${i}`;
+    const infoHtml=q.info.map(x=>`<li>${x}</li>`).join("");
+    const ansHtml=ANS_OPTIONS.map(o=>`<div class="ans-btn" id="ans_${i}_${o.key}" onclick="setAnswer(${i},'${o.key}')"><span>${o.icon}</span>${o.label}</div>`).join("");
+    card.innerHTML=`<div class="q-header">
+      <div class="q-num" id="qnum_${i}">${i+1}</div>
+      <div class="q-head-right">
+        <div class="q-title">${q.title}</div>
+        <div class="q-subtitle">${q.subtitle}</div>
+      </div>
+      <div class="q-status" id="qstatus_${i}">◻</div>
+    </div>
+    <div class="q-body">
+      <div class="info-toggle" onclick="toggleInfo(${i})">▸ Was wird hier geprüft?</div>
+      <div class="info-content" id="info_${i}"><ul>${infoHtml}</ul></div>
+      <div class="answer-group">${ansHtml}</div>
+      <div class="nudge-box" id="nudge_${i}"></div>
+      <label class="comment-label">Kommentar / Offene Punkte</label>
+      <textarea id="comment_${i}" placeholder="Was war gut? Was fehlt noch? Besondere Umstände?" oninput="saveComment(${i})"></textarea>
+    </div>`;
+    c.appendChild(card);
+  });
+  const nav=document.createElement("div");
+  nav.className="card";
+  nav.innerHTML=`<div class="nav-row"><button class="btn btn-secondary" onclick="goStep(1)">← Zurück</button><button class="btn btn-primary" onclick="toSummary()">Zur Auswertung →</button></div>`;
+  c.appendChild(nav);
+}
+
+function setAnswer(i,key){
+  answers[i].ans=key;
+  ANS_OPTIONS.forEach(o=>{document.getElementById(`ans_${i}_${o.key}`).className="ans-btn"+(key===o.key?" "+o.cls:"");});
+  const card=document.getElementById(`qcard_${i}`);
+  card.className="q-card answered-"+key;
+  document.getElementById(`qstatus_${i}`).textContent=ANS_ICON[key];
+  const nudge=document.getElementById(`nudge_${i}`);
+  const q=QUESTIONS[selectedRole][i];
+  if(key==="partial"&&q.nudge.partial){nudge.innerHTML=`<strong>Hinweis</strong>${q.nudge.partial}`;nudge.className="nudge-box show";}
+  else if(key==="no"&&q.nudge.no){nudge.innerHTML=`<strong>Achtung</strong>${q.nudge.no}`;nudge.className="nudge-box alert show";}
+  else{nudge.className="nudge-box";}
+  updateScore();
+}
+function saveComment(i){answers[i].comment=document.getElementById(`comment_${i}`).value;}
+function toggleInfo(i){document.getElementById(`info_${i}`).classList.toggle("show");}
+
+function updateScore(){
+  const qs=QUESTIONS[selectedRole];const n=qs.length;
+  const answered=answers.filter(a=>a.ans!==null);
+  const scorable=answers.filter(a=>a.ans!==null&&a.ans!=="na");
+  const maxPts=scorable.length*3;
+  const pts=scorable.reduce((s,a)=>{const o=ANS_OPTIONS.find(x=>x.key===a.ans);return s+(o&&o.pts!=null?o.pts:0);},0);
+  const pct=maxPts>0?Math.round(pts/maxPts*100):0;
+  const done=answered.length;
+  document.getElementById("lsVal").textContent=`${pts} / ${maxPts} Pkt.`;
+  document.getElementById("lsPercent").textContent=maxPts>0?`${pct} % erreicht`:"Noch keine bewertbaren Antworten";
+  document.getElementById("progLabel").textContent=`${done} von ${n} Fragen beantwortet`;
+  document.getElementById("progPct").textContent=`${Math.round(done/n*100)} %`;
+  document.getElementById("progFill").style.width=`${Math.round(done/n*100)}%`;
+  let emoji="🏁",msg="Los geht's — starte deinen Check-In!";
+  if(done===0){emoji="🏁";msg="Los geht's — starte deinen Check-In!";}
+  else if(pct>=95){emoji="🏆";msg="Außergewöhnlich. Du bist in Topform.";}
+  else if(pct>=85){emoji="🥇";msg="Starke Woche — noch ein paar Punkte und du bist bei 100 %.";}
+  else if(pct>=70){emoji="💪";msg="Gute Leistung. Schau dir die offenen Punkte an.";}
+  else if(pct>=50){emoji="🔧";msg="Da geht noch mehr. Welche Punkte kannst du heute noch abhaken?";}
+  else if(done>0){emoji="⚡";msg="Pack es an — jeder Punkt zählt.";}
+  document.getElementById("lsEmoji").textContent=emoji;
+  document.getElementById("lsMsg").textContent=msg;
+}
+
+function toSummary(){
+  const unanswered=answers.filter(a=>a.ans===null).length;
+  if(unanswered>0&&!confirm(`${unanswered} Frage(n) noch nicht beantwortet. Trotzdem zur Auswertung?`))return;
+  buildSummary();goStep(3);
+}
+
+function buildSummary(){
+  const qs=QUESTIONS[selectedRole];
+  const name=document.getElementById("userName").value.trim();
+  const kw=document.getElementById("userKW").value;
+  const year=document.getElementById("userYear").value;
+  const roleLabel=selectedRole==="IB"?"Immobilienberater/in":"Kernteam";
+  const scorable=answers.filter(a=>a.ans!==null&&a.ans!=="na");
+  const maxPts=scorable.length*3;
+  const pts=scorable.reduce((s,a)=>{const o=ANS_OPTIONS.find(x=>x.key===a.ans);return s+(o&&o.pts!=null?o.pts:0);},0);
+  const pct=maxPts>0?Math.round(pts/maxPts*100):0;
+  const countFull=answers.filter(a=>a.ans==="full").length;
+  const countPartial=answers.filter(a=>a.ans==="partial").length;
+  const countNo=answers.filter(a=>a.ans==="no").length;
+  const countNA=answers.filter(a=>a.ans==="na").length;
+  let grade="",gradeCls="";
+  if(pct>=95){grade="Topform";gradeCls="grade-gold";}
+  else if(pct>=85){grade="Sehr gut";gradeCls="grade-green";}
+  else if(pct>=70){grade="Gut";gradeCls="grade-green";}
+  else if(pct>=50){grade="Ausbaufähig";gradeCls="grade-mid";}
+  else{grade="Nachholbedarf";gradeCls="grade-red";}
+  const openItems=answers.map((a,i)=>(a.ans==="partial"||a.ans==="no")?{i,q:qs[i],a}:null).filter(Boolean);
+  let html=`<div class="summary-header">
+      <div class="sh-kw">KW ${kw} / ${year} · ${roleLabel} · ${name}</div>
+      <div class="sh-score">${pct} %</div>
+      <div class="sh-sub">${pts} von ${maxPts} möglichen Punkten</div>
+      <div class="sh-grade ${gradeCls}">${grade}</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val" style="color:var(--green)">${countFull}</div><div class="stat-lbl">Vollständig ✅</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--amber)">${countPartial}</div><div class="stat-lbl">Teilweise 🔶</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--red)">${countNo}</div><div class="stat-lbl">Nicht erledigt ❌</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:#aaa">${countNA}</div><div class="stat-lbl">Nicht angefallen ➖</div></div>
+    </div>`;
+  if(openItems.length>0){
+    html+=`<div class="open-box"><div class="open-title">Offene &amp; unvollständige Punkte (${openItems.length})</div>`;
+    openItems.forEach(({i,q,a})=>{html+=`<div class="open-item"><div class="open-dot"></div><div><strong>${q.title}</strong> — ${ANS_LABEL[a.ans]}${a.comment?`<br/><em style="color:#aaa;font-size:.72rem">${a.comment}</em>`:""}</div></div>`;});
+    html+=`</div>`;
+  }
+  html+=`<div class="detail-title">Alle Fragen im Detail</div>`;
+  qs.forEach((q,i)=>{
+    const a=answers[i];const ak=a.ans||"na";
+    html+=`<div class="d-row"><div class="d-num">${i+1}</div><div class="d-right"><div class="d-title">${q.title}</div>${a.comment?`<div class="d-comment">💬 ${a.comment}</div>`:""}</div><div class="d-ans ${ANS_CLS[ak]}">${ANS_ICON[ak]} ${ANS_LABEL[ak]}</div></div>`;
+  });
+  html+=`<div class="consent-stamp">✅ <strong>${name}</strong> hat alle Angaben für KW ${kw}/${year} wahrheitsgemäß bestätigt und eingereicht. Erstellt am ${new Date().toLocaleDateString("de-DE",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}.</div>`;
+  document.getElementById("summaryContent").innerHTML=html;
+}
+
+function printSummary(){buildSummary();window.print();}
+function submitCheckin(){goStep(4);}
+
+function goStep(n){
+  document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
+  document.getElementById("step"+n).classList.add("active");
+  currentStep=n;
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(n===1)document.getElementById("liveScoreBar").style.display="none";
+}
+
+// ── SUPABASE SAVE (beim Abschließen) ───────────────────────────
+async function saveWeeklyToDB(userName, kw, jahr, rolle, scorePct, scoreNote, antworten, offenePunkte, kommentare) {
+  try {
+    if (typeof EvDB !== 'undefined') {
+      await EvDB.saveWeekly({
+        userName, kw, jahr, rolle,
+        scorePct, scoreNote,
+        antworten: antworten || {},
+        offenePunkte: offenePunkte || [],
+        kommentare: kommentare || {}
+      });
+    }
+  } catch(e) { console.warn('[E&V Weekly] DB-Speicherung fehlgeschlagen:', e.message); }
+}
+
+</script>
+</body>
+</html>

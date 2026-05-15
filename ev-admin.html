@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin-Dashboard | Engel &amp; Völkers</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="ev-supabase.js"></script>
+<style>
+:root{--red:#C41E3A;--dark:#1a1a1a;--mid:#e0e0e0;--light:#f7f6f4;--white:#fff;
+  --green:#2d7a4f;--amber:#c17b00;--blue:#1565c0;--purple:#6d28d9;
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'Raleway','Segoe UI',Arial,sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:#0f0f0f;color:#e0e0e0;min-height:100vh;}
+
+/* LOGIN */
+#adminLogin{position:fixed;inset:0;background:#0f0f0f;display:flex;align-items:center;justify-content:center;z-index:200;}
+.al-panel{width:360px;padding:48px 40px;background:#1a1a1a;border-top:2px solid var(--red);}
+.al-logo{display:flex;align-items:center;gap:12px;margin-bottom:36px;}
+.al-box{width:34px;height:34px;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--serif);font-weight:700;font-size:.85rem;}
+.al-name{font-family:var(--serif);font-size:1rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:#fff;}
+.al-sub{font-size:.55rem;color:#555;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+.al-title{font-family:var(--serif);font-size:1.8rem;font-weight:300;color:#fff;margin-bottom:6px;}
+.al-hint{font-size:.68rem;color:#555;margin-bottom:28px;letter-spacing:.3px;}
+.al-field{margin-bottom:16px;}
+.al-field label{display:block;font-size:.58rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#555;margin-bottom:6px;}
+.al-field input{width:100%;background:transparent;border:none;border-bottom:1.5px solid #333;padding:10px 0;color:#fff;font-family:var(--sans);font-size:.9rem;outline:none;transition:border-color .2s;}
+.al-field input:focus{border-bottom-color:var(--red);}
+.al-btn{width:100%;padding:13px;background:var(--red);color:#fff;border:none;font-family:var(--sans);font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:20px;transition:background .2s;}
+.al-btn:hover{background:#a01830;}
+.al-err{color:#ff6b6b;font-size:.72rem;margin-top:12px;display:none;}
+.al-demo-note{font-size:.62rem;color:#444;margin-top:20px;line-height:1.6;text-align:center;border-top:1px solid #222;padding-top:16px;}
+
+/* LAYOUT */
+.admin-app{display:grid;grid-template-columns:220px 1fr;min-height:100vh;}
+
+/* SIDEBAR */
+.adm-sidebar{background:#111;padding:28px 20px;display:flex;flex-direction:column;border-right:1px solid #222;}
+.adm-logo{display:flex;align-items:center;gap:10px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid #222;}
+.adm-ev{width:28px;height:28px;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--serif);font-weight:700;font-size:.78rem;flex-shrink:0;}
+.adm-lname{font-family:var(--serif);font-size:.85rem;font-weight:600;color:#fff;letter-spacing:.3px;text-transform:uppercase;}
+.adm-lsub{font-size:.52rem;color:#444;letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+.adm-nav{display:flex;flex-direction:column;gap:2px;flex:1;}
+.adm-nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;color:#666;font-size:.72rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;border:none;background:none;text-align:left;width:100%;}
+.adm-nav-item:hover{color:#fff;background:rgba(255,255,255,.04);}
+.adm-nav-item.active{color:var(--red);background:rgba(196,30,58,.1);}
+.adm-nav-item .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.adm-meta{margin-top:auto;padding-top:20px;border-top:1px solid #222;}
+.adm-user{font-size:.68rem;color:#555;}
+.adm-logout{font-size:.58rem;color:#555;cursor:pointer;letter-spacing:1px;text-transform:uppercase;margin-top:8px;background:none;border:none;padding:0;font-family:var(--sans);}
+.adm-logout:hover{color:var(--red);}
+
+/* MAIN */
+.adm-main{display:flex;flex-direction:column;overflow:auto;}
+.adm-topbar{padding:18px 32px;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;justify-content:space-between;background:#111;position:sticky;top:0;z-index:10;}
+.adm-topbar-title{font-family:var(--serif);font-size:1.1rem;font-weight:400;color:#fff;}
+.adm-topbar-meta{font-size:.62rem;color:#444;letter-spacing:.5px;}
+.adm-refresh{font-size:.58rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#555;cursor:pointer;background:none;border:1px solid #333;padding:6px 14px;transition:all .2s;}
+.adm-refresh:hover{border-color:var(--red);color:var(--red);}
+
+.adm-content{padding:32px;flex:1;}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:36px;}
+.kpi{background:#161616;border:1px solid #222;padding:22px 24px;}
+.kpi-val{font-family:var(--serif);font-size:2.4rem;font-weight:300;line-height:1;margin-bottom:6px;}
+.kpi-label{font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555;}
+.kpi-sub{font-size:.68rem;color:#444;margin-top:4px;}
+.kpi.red .kpi-val{color:var(--red);}
+.kpi.green .kpi-val{color:var(--green);}
+.kpi.blue .kpi-val{color:#4d9ef7;}
+.kpi.amber .kpi-val{color:#f5a623;}
+.kpi.purple .kpi-val{color:#a78bfa;}
+
+/* SECTION */
+.adm-section{margin-bottom:36px;}
+.adm-sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #1e1e1e;}
+.adm-sec-title{font-size:.6rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#555;display:flex;align-items:center;gap:10px;}
+.adm-sec-title .accent{color:var(--red);}
+.adm-sec-count{font-size:.62rem;color:#444;}
+
+/* TABLE */
+.adm-table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.78rem;}
+th{padding:9px 14px;text-align:left;font-size:.55rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#444;border-bottom:1px solid #1e1e1e;background:#111;white-space:nowrap;}
+td{padding:10px 14px;border-bottom:1px solid #1a1a1a;color:#ccc;vertical-align:top;}
+tr:hover td{background:#161616;}
+.td-name{font-weight:600;color:#e0e0e0;}
+.td-mono{font-family:monospace;font-size:.75rem;color:#888;}
+.td-num{font-family:var(--serif);font-size:1rem;color:#e0e0e0;}
+.td-date{font-size:.68rem;color:#555;white-space:nowrap;}
+
+/* STATUS PILLS */
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;font-size:.58rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;}
+.pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.pill-green{background:rgba(45,122,79,.15);color:#4ade80;}
+.pill-amber{background:rgba(193,123,0,.15);color:#fbbf24;}
+.pill-blue{background:rgba(21,101,192,.15);color:#60a5fa;}
+.pill-red{background:rgba(196,30,58,.15);color:#f87171;}
+.pill-gray{background:rgba(100,100,100,.15);color:#888;}
+
+/* TABS (for view switching) */
+.tab-row{display:flex;gap:2px;background:#111;padding:4px;margin-bottom:24px;border:1px solid #1e1e1e;}
+.tab-btn{padding:8px 18px;font-size:.6rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;background:none;border:none;color:#444;transition:all .2s;}
+.tab-btn.active{background:var(--red);color:#fff;}
+.tab-btn:hover:not(.active){color:#fff;}
+
+/* CHART (sparkline) */
+.spark-wrap{display:flex;align-items:flex-end;gap:3px;height:40px;}
+.spark-bar{background:var(--red);opacity:.6;min-width:6px;border-radius:1px 1px 0 0;transition:opacity .2s;}
+.spark-bar:hover{opacity:1;}
+
+/* EMPTY STATE */
+.adm-empty{padding:48px;text-align:center;color:#333;font-size:.8rem;}
+.adm-empty-icon{font-size:2rem;margin-bottom:12px;}
+
+/* LOADING */
+.adm-loading{padding:48px;text-align:center;}
+.adm-spinner{width:32px;height:32px;border:2px solid #222;border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* CONFIG BANNER */
+.cfg-banner{background:rgba(196,30,58,.1);border:1px solid rgba(196,30,58,.3);padding:14px 20px;margin-bottom:24px;font-size:.75rem;color:#f87171;display:flex;align-items:center;gap:12px;}
+.cfg-banner strong{color:var(--red);}
+
+@media(max-width:700px){.admin-app{grid-template-columns:1fr;}.adm-sidebar{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- ADMIN LOGIN -->
+<div id="adminLogin">
+  <div class="al-panel">
+    <div class="al-logo">
+      <div class="al-box">E&amp;V</div>
+      <div><div class="al-name">Engel &amp; Völkers</div><div class="al-sub">Admin-Dashboard</div></div>
+    </div>
+    <div class="al-title">Geschäftsführung</div>
+    <div class="al-hint">Nur für autorisierte Administratoren · Mittleres Ruhrgebiet</div>
+    <div class="al-field"><label>E-Mail-Adresse</label><input type="email" id="alEmail" placeholder="admin@engelvoelkers.de" onkeydown="if(event.key==='Enter')adminLogin()"/></div>
+    <div class="al-field"><label>Passwort</label><input type="password" id="alPw" placeholder="Passwort" onkeydown="if(event.key==='Enter')adminLogin()"/></div>
+    <button class="al-btn" id="alBtn" onclick="adminLogin()">Anmelden</button>
+    <div class="al-err" id="alErr"></div>
+    <div class="al-demo-note">
+      <strong style="color:#555;">Demo-Modus:</strong><br/>
+      Solange Supabase nicht konfiguriert ist,<br/>
+      beliebige E-Mail + Passwort <code style="color:#666;">Sommeranfang</code>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div class="admin-app" id="adminApp" style="display:none;">
+  <aside class="adm-sidebar">
+    <div class="adm-logo">
+      <div class="adm-ev">E&amp;V</div>
+      <div><div class="adm-lname">Admin</div><div class="adm-lsub">Mittleres Ruhrgebiet</div></div>
+    </div>
+    <nav class="adm-nav">
+      <button class="adm-nav-item active" onclick="showView('overview')" id="nav_overview"><span class="dot"></span>Übersicht</button>
+      <button class="adm-nav-item" onclick="showView('orders')" id="nav_orders"><span class="dot"></span>Brand-Shop</button>
+      <button class="adm-nav-item" onclick="showView('finanz')" id="nav_finanz"><span class="dot"></span>Finanzierung</button>
+      <button class="adm-nav-item" onclick="showView('weekly')" id="nav_weekly"><span class="dot"></span>Weekly Check-In</button>
+      <button class="adm-nav-item" onclick="showView('social')" id="nav_social"><span class="dot"></span>Social Media</button>
+    </nav>
+    <div class="adm-meta">
+      <div class="adm-user" id="admUserLabel"></div>
+      <button class="adm-logout" onclick="adminLogout()">Abmelden</button>
+    </div>
+  </aside>
+
+  <main class="adm-main">
+    <div class="adm-topbar">
+      <div>
+        <div class="adm-topbar-title" id="admViewTitle">Dashboard-Übersicht</div>
+        <div class="adm-topbar-meta" id="admViewMeta">Alle Apps · Engel &amp; Völkers Mittleres Ruhrgebiet</div>
+      </div>
+      <button class="adm-refresh" onclick="loadData()">↻ Aktualisieren</button>
+    </div>
+    <div class="adm-content" id="admContent">
+      <div class="adm-loading"><div class="adm-spinner"></div><div style="font-size:.72rem;color:#444;">Daten werden geladen …</div></div>
+    </div>
+  </main>
+</div>
+
+<script>
+let currentView = 'overview';
+let DATA = { orders:[], finanz:[], weekly:[], socialmedia:[] };
+
+// ── LOGIN ────────────────────────────────────────────────────────
+async function adminLogin() {
+  const email = document.getElementById('alEmail').value.trim();
+  const pw    = document.getElementById('alPw').value;
+  const btn   = document.getElementById('alBtn');
+  const err   = document.getElementById('alErr');
+  if (!email || !pw) { err.textContent='Bitte E-Mail und Passwort eingeben.'; err.style.display='block'; return; }
+  btn.textContent = 'Anmelden …'; btn.disabled = true; err.style.display='none';
+  try {
+    const user = await EvDB.login(email, pw);
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminApp').style.display = 'grid';
+    document.getElementById('admUserLabel').textContent = user.fullName || user.email;
+    loadData();
+  } catch(e) {
+    err.textContent = '⚠ ' + (e.message || 'Anmeldung fehlgeschlagen.');
+    err.style.display = 'block';
+  } finally { btn.textContent='Anmelden'; btn.disabled=false; }
+}
+
+async function adminLogout() {
+  if (!confirm('Abmelden?')) return;
+  await EvDB.logout();
+  location.reload();
+}
+
+// ── DATA LOAD ────────────────────────────────────────────────────
+async function loadData() {
+  document.getElementById('admContent').innerHTML = '<div class="adm-loading"><div class="adm-spinner"></div><div style="font-size:.72rem;color:#444;">Daten werden geladen …</div></div>';
+  try {
+    DATA = await EvDB.getAdminStats();
+  } catch(e) {
+    DATA = { orders:[], finanz:[], weekly:[], socialmedia:[] };
+    console.error('Ladefehler:', e);
+  }
+  renderView(currentView);
+}
+
+// ── VIEW SWITCH ──────────────────────────────────────────────────
+function showView(v) {
+  currentView = v;
+  document.querySelectorAll('.adm-nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav_'+v)?.classList.add('active');
+  renderView(v);
+}
+
+function renderView(v) {
+  const titles = {
+    overview: ['Dashboard-Übersicht', 'Alle Apps · Engel & Völkers Mittleres Ruhrgebiet'],
+    orders:   ['Brand-Shop Bestellungen', 'Werbemittel-Shop · Alle Bestellungen'],
+    finanz:   ['Finanzierungsanfragen', 'Finanzierungsvermittlung · Alle Anfragen'],
+    weekly:   ['Weekly Check-In Ergebnisse', 'Alle Einreichungen nach KW'],
+    social:   ['Social Media Anfragen', 'Alle Social-Media-Aufträge']
+  };
+  const [title, meta] = titles[v] || titles.overview;
+  document.getElementById('admViewTitle').textContent  = title;
+  document.getElementById('admViewMeta').textContent   = meta;
+
+  const content = document.getElementById('admContent');
+  const cfgNote = !EvDB.isConfigured() ? `<div class="cfg-banner"><span>⚠</span><span><strong>Demo-Modus:</strong> Supabase nicht konfiguriert — Daten kommen aus dem localStorage. Trage deine Zugangsdaten in ev-supabase.js ein.</span></div>` : '';
+
+  if (v === 'overview') content.innerHTML = cfgNote + renderOverview();
+  else if (v === 'orders')  content.innerHTML = cfgNote + renderOrders();
+  else if (v === 'finanz')  content.innerHTML = cfgNote + renderFinanz();
+  else if (v === 'weekly')  content.innerHTML = cfgNote + renderWeekly();
+  else if (v === 'social')  content.innerHTML = cfgNote + renderSocial();
+}
+
+// ── OVERVIEW ─────────────────────────────────────────────────────
+function renderOverview() {
+  const o = DATA.orders || [], f = DATA.finanz || [], w = DATA.weekly || [], s = DATA.socialmedia || [];
+  const orderTotal = o.reduce((a,x) => a + (parseFloat(x.total_eur)||0), 0);
+  const darlehenTotal = f.reduce((a,x) => a + (parseFloat(x.fin_darlehen)||0), 0);
+  const avgScore = w.length ? Math.round(w.reduce((a,x)=>a+(parseFloat(x.score_pct)||0),0)/w.length) : 0;
+  const pendingOrders = o.filter(x=>x.status==='pending').length;
+
+  // Last 8 weeks check-in sparkline
+  const weekBuckets = {};
+  w.forEach(x => { const k=x.kw+'/'+x.jahr; weekBuckets[k]=(weekBuckets[k]||0)+1; });
+  const wKeys = Object.keys(weekBuckets).slice(-8);
+  const wMax  = Math.max(...wKeys.map(k=>weekBuckets[k]),1);
+  const sparkBars = wKeys.map(k => `<div class="spark-bar" title="KW ${k}: ${weekBuckets[k]}" style="height:${Math.round(weekBuckets[k]/wMax*38)+2}px;flex:1;"></div>`).join('');
+
+  return `
+<div class="kpi-grid">
+  <div class="kpi red"><div class="kpi-val">${o.length}</div><div class="kpi-label">Bestellungen</div><div class="kpi-sub">${fe(orderTotal)} Gesamtumsatz</div></div>
+  <div class="kpi blue"><div class="kpi-val">${f.length}</div><div class="kpi-label">Finanzierungsanfragen</div><div class="kpi-sub">${fe(darlehenTotal)} Darlehensvolumen</div></div>
+  <div class="kpi green"><div class="kpi-val">${w.length}</div><div class="kpi-label">Weekly Check-Ins</div><div class="kpi-sub">Ø Score: ${avgScore} %</div></div>
+  <div class="kpi amber"><div class="kpi-val">${s.length}</div><div class="kpi-label">Social Media Aufträge</div><div class="kpi-sub">${s.filter(x=>x.status==='eingegangen').length} offen</div></div>
+  <div class="kpi purple"><div class="kpi-val">${pendingOrders}</div><div class="kpi-label">Offene Freigaben</div><div class="kpi-sub">Brand-Shop · über Budget</div></div>
+</div>
+
+<div class="adm-section">
+  <div class="adm-sec-head"><div class="adm-sec-title"><span class="accent">●</span> Check-In Aktivität (letzte 8 Wochen)</div></div>
+  <div style="background:#111;border:1px solid #1e1e1e;padding:20px 24px;">
+    <div style="display:flex;align-items:flex-end;gap:3px;height:50px;margin-bottom:8px;">${sparkBars||'<div style="color:#333;font-size:.72rem;">Noch keine Daten</div>'}</div>
+    <div style="display:flex;justify-content:space-between;">${wKeys.map(k=>`<div style="font-size:.55rem;color:#444;">KW ${k.split('/')[0]}</div>`).join('')}</div>
+  </div>
+</div>
+
+<div class="adm-section">
+  <div class="adm-sec-head"><div class="adm-sec-title"><span class="accent">●</span> Letzte Aktivitäten</div></div>
+  <table>
+    <thead><tr><th>Zeit</th><th>App</th><th>Benutzer</th><th>Details</th><th>Status</th></tr></thead>
+    <tbody>
+      ${buildActivityFeed(o, f, w, s)}
+    </tbody>
+  </table>
+</div>`;
+}
+
+function buildActivityFeed(o, f, w, s) {
+  const all = [
+    ...o.map(x=>({t:x.created_at,app:'Brand-Shop',user:x.user_name||x.user_email,detail:`Bestellung ${x.order_number||''} · ${fe(x.total_eur||0)}`,status:x.status==='approved'?'green':x.status==='pending'?'amber':'gray'})),
+    ...f.map(x=>({t:x.created_at,app:'Finanzierung',user:x.berater_name||x.berater_email,detail:`${x.kn1_name||'–'} · ${x.obj_adresse||'–'} · ${fe(x.fin_darlehen||0)}`,status:'blue'})),
+    ...w.map(x=>({t:x.created_at,app:'Weekly',user:x.user_name,detail:`KW ${x.kw}/${x.jahr} · ${x.rolle} · ${x.score_pct||0} %`,status:x.score_pct>=70?'green':x.score_pct>=40?'amber':'red'})),
+    ...s.map(x=>({t:x.created_at,app:'Social Media',user:x.sender_name,detail:x.beitragsart+(x.dringlichkeit?` · ${x.dringlichkeit}`:''),status:x.status==='eingegangen'?'amber':'green'}))
+  ].sort((a,b)=>new Date(b.t)-new Date(a.t)).slice(0,20);
+
+  if (!all.length) return `<tr><td colspan="5" class="adm-empty"><div class="adm-empty-icon">📭</div>Noch keine Daten vorhanden.</td></tr>`;
+
+  const appColors = {'Brand-Shop':'#f87171','Finanzierung':'#60a5fa','Weekly':'#4ade80','Social Media':'#fbbf24'};
+  return all.map(x=>`<tr>
+    <td class="td-date">${fmtDate(x.t)}</td>
+    <td><span style="font-size:.6rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:${appColors[x.app]||'#888'}">${x.app}</span></td>
+    <td class="td-name">${x.user||'–'}</td>
+    <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.75rem;">${x.detail}</td>
+    <td><span class="pill pill-${x.status}">${x.status}</span></td>
+  </tr>`).join('');
+}
+
+// ── ORDERS ───────────────────────────────────────────────────────
+function renderOrders() {
+  const o = DATA.orders || [];
+  const total = o.reduce((a,x)=>a+(parseFloat(x.total_eur)||0),0);
+  const pending = o.filter(x=>x.status==='pending');
+  if (!o.length) return emptyState('🛍️','Noch keine Bestellungen vorhanden.');
+  return `
+<div class="kpi-grid">
+  <div class="kpi red"><div class="kpi-val">${o.length}</div><div class="kpi-label">Bestellungen gesamt</div></div>
+  <div class="kpi green"><div class="kpi-val">${fe(total)}</div><div class="kpi-label">Gesamtumsatz</div></div>
+  <div class="kpi amber"><div class="kpi-val">${pending.length}</div><div class="kpi-label">Warten auf Freigabe</div></div>
+  <div class="kpi blue"><div class="kpi-val">${o.filter(x=>x.status==='approved'||x.status==='delivered').length}</div><div class="kpi-label">Freigegeben / Geliefert</div></div>
+</div>
+<div class="adm-section">
+  <div class="adm-sec-head"><div class="adm-sec-title"><span class="accent">●</span> Alle Bestellungen</div><div class="adm-sec-count">${o.length} Einträge</div></div>
+  <div class="adm-table-wrap"><table>
+    <thead><tr><th>Datum</th><th>Bestellnr.</th><th>Besteller</th><th>Standort</th><th>Positionen</th><th>Betrag</th><th>Kostenstelle</th><th>Status</th></tr></thead>
+    <tbody>${o.map(x=>`<tr>
+      <td class="td-date">${fmtDate(x.created_at)}</td>
+      <td class="td-mono">${x.order_number||'–'}</td>
+      <td class="td-name">${x.user_name||x.user_email||'–'}</td>
+      <td style="font-size:.72rem;">${x.location||'–'}</td>
+      <td style="font-size:.72rem;max-width:200px;">${Array.isArray(x.items)?x.items.map(i=>`${i.name||i} (${i.qty||1})`).join(', '):JSON.stringify(x.items||'–')}</td>
+      <td class="td-num">${fe(x.total_eur||0)}</td>
+      <td class="td-mono" style="font-size:.68rem;">${x.cost_center||'–'}</td>
+      <td>${statusPill(x.status)}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>
+</div>`;
+}
+
+// ── FINANZIERUNG ─────────────────────────────────────────────────
+function renderFinanz() {
+  const f = DATA.finanz || [];
+  const totalDarlehen = f.reduce((a,x)=>a+(parseFloat(x.fin_darlehen)||0),0);
+  const avgEK = f.length ? Math.round(f.reduce((a,x)=>a+(parseFloat(x.fin_ek_quote)||0),0)/f.length) : 0;
+  if (!f.length) return emptyState('🏦','Noch keine Finanzierungsanfragen vorhanden.');
+  return `
+<div class="kpi-grid">
+  <div class="kpi blue"><div class="kpi-val">${f.length}</div><div class="kpi-label">Anfragen gesamt</div></div>
+  <div class="kpi green"><div class="kpi-val">${fe(totalDarlehen)}</div><div class="kpi-label">Darlehensvolumen gesamt</div></div>
+  <div class="kpi amber"><div class="kpi-val">${avgEK} %</div><div class="kpi-label">Ø Eigenkapitalquote</div></div>
+  <div class="kpi red"><div class="kpi-val">${fe(f.length?totalDarlehen/f.length:0)}</div><div class="kpi-label">Ø Darlehen je Anfrage</div></div>
+</div>
+<div class="adm-section">
+  <div class="adm-sec-head"><div class="adm-sec-title"><span class="accent">●</span> Alle Finanzierungsanfragen</div><div class="adm-sec-count">${f.length} Einträge</div></div>
+  <div class="adm-table-wrap"><table>
+    <thead><tr><th>Datum</th><th>Berater</th><th>Kreditnehmer</th><th>Objekt</th><th>Kaufpreis</th><th>Darlehen</th><th>EK-Quote</th><th>Bank</th><th>Status</th></tr></thead>
+    <tbody>${f.map(x=>`<tr>
+      <td class="td-date">${fmtDate(x.created_at)}</td>
+      <td class="td-name" style="white-space:nowrap;">${x.berater_name||x.berater_email||'–'}</td>
+      <td class="td-name">${x.kn1_name||'–'}${x.kn2_name?'<br/><span style="font-size:.68rem;color:#666;">+ '+x.kn2_name+'</span>':''}</td>
+      <td style="font-size:.72rem;max-width:160px;">${x.obj_adresse||'–'}<br/><span style="color:#555;">${x.obj_art||''}</span></td>
+      <td class="td-num">${fe(x.obj_kaufpreis||0)}</td>
+      <td class="td-num" style="color:#60a5fa;">${fe(x.fin_darlehen||0)}</td>
+      <td style="text-align:center;">${x.fin_ek_quote||'–'} %</td>
+      <td style="font-size:.68rem;">${x.zielbank||'–'}</td>
+      <td>${statusPill(x.status||'gesendet')}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>
+</div>`;
+}
+
+// ── WEEKLY ───────────────────────────────────────────────────────
+function renderWeekly() {
+  const w = DATA.weekly || [];
+  if (!w.length) return emptyState('📋','Noch keine Weekly Check-Ins vorhanden.');
+  const avgScore = Math.round(w.reduce((a,x)=>a+(parseFloat(x.score_pct)||0),0)/w.length);
+  const byRolle = {};
+  w.forEach(x=>{ byRolle[x.rolle]=(byRolle[x.rolle]||0)+1; });
+  return `
+<div class="kpi-grid">
+  <div class="kpi green"><div class="kpi-val">${w.length}</div><div class="kpi-label">Check-Ins gesamt</div></div>
+  <div class="kpi ${avgScore>=70?'green':avgScore>=40?'amber':'red'}"><div class="kpi-val">${avgScore} %</div><div class="kpi-label">Ø Score</div></div>
+  <div class="kpi blue"><div class="kpi-val">${w.filter(x=>(x.score_pct||0)>=70).length}</div><div class="kpi-label">Score ≥ 70 % (grün)</div></div>
+  <div class="kpi red"><div class="kpi-val">${w.filter(x=>(x.score_pct||0)<40).length}</div><div class="kpi-label">Score &lt; 40 % (rot)</div></div>
+  ${Object.entries(byRolle).map(([r,c])=>`<div class="kpi"><div class="kpi-val" style="font-size:1.6rem;">${c}</div><div class="kpi-label">${r}</div></div>`).join('')}
+</div>
+<div class="adm-section">
+  <div class="adm-sec-head"><div class="adm-sec-title"><span class="accent">●</span> Alle Check-In Ergebnisse</div><div class="adm-sec-count">${w.length} Einträge</div></div>
+  <div class="adm-table-wrap"><table>
+    <thead><tr><th>Datum</th><th>KW / Jahr</th><th>Name</th><th>Rolle</th><th>Score</th><th>Note</th><th>Offene Punkte</th></tr></thead>
+    <tbody>${w.map(x=>{
+      const score=parseFloat(x.score_pct)||0;
+      const col=score>=70?'#4ade80':score>=40?'#fbbf24':'#f87171';
+      const offen=Array.isArray(x.offene_punkte)?x.offene_punkte.length:0;
+      return `<tr>
+        <td class="td-date">${fmtDate(x.created_at)}</td>
+        <td style="text-align:center;"><strong>KW ${x.kw}</strong><br/><span style="font-size:.65rem;color:#555;">${x.jahr}</span></td>
+        <td class="td-name">${x.user_name||'–'}</td>
+        <td style="font-size:.72rem;">${x.rolle||'–'}</td>
+        <td style="font-family:var(--serif);font-size:1.2rem;color:${col};">${score} %</td>
+        <td><span class="pill pill-${score>=70?'green':score>=40?'amber':'red'}">${x.score_note||'–'}</span></td>
+        <td style="text-align:center;color:${offen>0?'#fbbf24':'#555'};">${offen>0?'⚠ '+offen:'–'}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>
+</div>`;
+}
+
+// ── SOCIAL MEDIA ─────────────────────────────────────────────────
+function renderSocial() {
+  const s = DATA.socialmedia || [];
+  if (!s.length) return emptyState('📲','Noch keine Social-Media-Anfragen vorhanden.');
+  const byArt = {};
+  s.forEach(x=>{ byArt[x.beitragsart]=(byArt[x.beitragsart]||0)+1; });
+  const topArt = Object.entries(byArt).sort((a,b)=>b[1]-a[1]).slice(0,1)[0];
+  return `
+<div class="kpi-grid">
+  <div class="kpi amber"><div class="kpi-val">${s.length}</div><div class="kpi-label">Anfragen gesamt</div></div>
+  <div class="kpi red"><div class="kpi-val">${s.filter(x=>x.status==='eingegangen').length}</div><div class="kpi-label">Offen / Eingegangen</div></div>
+  <div class="kpi green"><div class="kpi-val">${s.filter(x=>x.status==='erledigt').length}</div><div class="kpi-label">Erledigt</div></div>
+  <div class="kpi blue"><div class="kpi-val" style="font-size:1rem;">${topArt?topArt[0]:'–'}</div><div class="kpi-label">Häufigste Beitragsart</div></div>
+</div>
+<div class="adm-section">
+  <div class="adm-sec-head"><div class="adm-sec-title"><span class="accent">●</span> Alle Social-Media-Anfragen</div><div class="adm-sec-count">${s.length} Einträge</div></div>
+  <div class="adm-table-wrap"><table>
+    <thead><tr><th>Datum</th><th>Absender</th><th>Beitragsart</th><th>Plattformen</th><th>Ton / Format</th><th>Dringlichkeit</th><th>Status</th></tr></thead>
+    <tbody>${s.map(x=>`<tr>
+      <td class="td-date">${fmtDate(x.created_at)}</td>
+      <td class="td-name">${x.sender_name||x.sender_email||'–'}</td>
+      <td style="font-size:.75rem;">${x.beitragsart||'–'}</td>
+      <td style="font-size:.68rem;">${Array.isArray(x.plattformen)?x.plattformen.join(', '):x.plattformen||'–'}</td>
+      <td style="font-size:.68rem;">${[x.ton,x.format].filter(Boolean).join(' · ')||'–'}</td>
+      <td>${dringlichkeitPill(x.dringlichkeit)}</td>
+      <td>${statusPill(x.status||'eingegangen')}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>
+</div>`;
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function fe(v) { return (v||0).toLocaleString('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }
+function fmtDate(d) {
+  if (!d) return '–';
+  try { return new Date(d).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+  catch(_) { return d; }
+}
+function statusPill(s) {
+  const map = {
+    approved:'green',freigegeben:'green',delivered:'blue',geliefert:'blue',
+    pending:'amber',eingegangen:'amber',gesendet:'blue',erledigt:'green',
+    rejected:'red',abgelehnt:'red',offen:'amber'
+  };
+  return `<span class="pill pill-${map[s]||'gray'}">${s||'–'}</span>`;
+}
+function dringlichkeitPill(d) {
+  if (!d) return '<span style="color:#444;font-size:.68rem;">–</span>';
+  const map = {'Sofort (heute)':'red','Dringend (1-2 Tage)':'amber','Normal (diese Woche)':'blue','Kein Eildruck':'gray'};
+  return `<span class="pill pill-${map[d]||'gray'}">${d}</span>`;
+}
+function emptyState(icon, msg) {
+  return `<div class="adm-empty"><div class="adm-empty-icon">${icon}</div>${msg}</div>`;
+}
+
+// ── INIT ─────────────────────────────────────────────────────────
+(async function() {
+  try {
+    const user = await EvDB.getCurrentUser();
+    if (user) {
+      document.getElementById('adminLogin').style.display = 'none';
+      document.getElementById('adminApp').style.display  = 'grid';
+      document.getElementById('admUserLabel').textContent = user.fullName || user.email;
+      loadData();
+    }
+  } catch(_) {}
+})();
+</script>
+</body>
+</html>

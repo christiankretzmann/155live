@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>E&V Mitarbeiterportal | Engel & Völkers Mittleres Ruhrgebiet</title>
+<script src="ev-supabase.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --red: #C41E3A;
+  --dark: #1a1a1a;
+  --mid: #e0e0e0;
+  --light: #f7f6f4;
+  --white: #ffffff;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Raleway', 'Segoe UI', Arial, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--light);color:var(--dark);min-height:100vh;}
+
+/* ═══ LOGIN ═══ */
+#loginOverlay {
+  position:fixed;inset:0;
+  background:var(--dark);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;
+  animation:fadeIn .4s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.login-panel {
+  background:var(--white);
+  width:100%;max-width:440px;
+  padding:52px 48px 44px;
+  position:relative;
+}
+.login-panel::before {
+  content:'';position:absolute;top:0;left:0;right:0;
+  height:3px;background:var(--red);
+}
+.login-logo {
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:36px;
+}
+.login-ev-box {
+  width:42px;height:42px;background:var(--red);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-family:var(--serif);font-weight:700;
+  font-size:.95rem;letter-spacing:-0.5px;flex-shrink:0;
+}
+.login-brand-name {
+  font-family:var(--serif);font-size:1.05rem;font-weight:600;
+  letter-spacing:1px;text-transform:uppercase;color:var(--dark);
+  line-height:1.2;
+}
+.login-brand-sub {
+  font-family:var(--sans);font-size:.65rem;font-weight:500;
+  letter-spacing:2px;text-transform:uppercase;color:#999;
+  margin-top:3px;
+}
+.login-headline {
+  font-family:var(--serif);font-size:2.2rem;font-weight:300;
+  color:var(--dark);letter-spacing:-0.5px;
+  margin-bottom:6px;line-height:1.1;
+}
+.login-tagline {
+  font-size:.72rem;font-weight:500;letter-spacing:1.5px;
+  text-transform:uppercase;color:#bbb;margin-bottom:36px;
+}
+.lf {
+  display:flex;flex-direction:column;gap:6px;margin-bottom:20px;
+}
+.lf label {
+  font-size:.62rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:1.5px;color:#999;
+}
+.lf input {
+  border:none;border-bottom:1.5px solid #ddd;
+  padding:10px 0;font-size:.9rem;font-family:var(--sans);
+  color:var(--dark);background:transparent;
+  transition:border-color .2s;
+}
+.lf input:focus{outline:none;border-bottom-color:var(--red);}
+.lf input::placeholder{color:#ccc;}
+.lf.required label::after{content:' *';color:var(--red);}
+.login-divider {
+  display:flex;align-items:center;gap:14px;margin:8px 0 20px;
+}
+.login-divider::before,.login-divider::after {
+  content:'';flex:1;height:1px;background:#eee;
+}
+.login-divider span {
+  font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:#ddd;
+}
+.login-btn {
+  width:100%;padding:14px;
+  background:var(--red);color:#fff;border:none;
+  font-family:var(--sans);font-size:.72rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+  transition:background .2s;margin-top:4px;
+}
+.login-btn:hover{background:#a01830;}
+.login-error {
+  font-size:.72rem;color:var(--red);margin-top:10px;
+  font-weight:600;letter-spacing:.5px;display:none;
+}
+.login-footer {
+  font-size:.6rem;color:#ddd;letter-spacing:.5px;
+  text-align:center;margin-top:28px;line-height:1.6;
+}
+
+/* ═══ HEADER ═══ */
+header {
+  background:var(--white);
+  border-bottom:1px solid #e8e8e8;
+  padding:0 48px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.hlogo {
+  display:flex;align-items:center;gap:16px;
+}
+.hlogo-ev {
+  width:36px;height:36px;background:var(--red);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-family:var(--serif);font-weight:700;
+  font-size:.85rem;letter-spacing:-0.5px;flex-shrink:0;
+}
+.hlogo-name {
+  font-family:var(--serif);font-size:1.05rem;font-weight:600;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--dark);
+}
+.hlogo-sub {
+  font-size:.6rem;font-weight:500;letter-spacing:1.5px;
+  text-transform:uppercase;color:#bbb;margin-top:2px;
+}
+.hright {display:flex;align-items:center;gap:20px;}
+.hdate {
+  font-size:.65rem;font-weight:500;letter-spacing:1px;
+  text-transform:uppercase;color:#bbb;
+}
+.huser {display:flex;align-items:center;gap:10px;}
+.huser-avatar {
+  width:32px;height:32px;background:var(--dark);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:.72rem;font-weight:700;font-family:var(--serif);
+  letter-spacing:.5px;
+}
+.huser-name {
+  font-size:.78rem;font-weight:600;color:var(--dark);letter-spacing:.2px;
+}
+.huser-role {
+  font-size:.6rem;color:#bbb;letter-spacing:.5px;text-transform:uppercase;
+}
+.hlogout {
+  background:none;border:1px solid #ddd;
+  padding:6px 14px;font-family:var(--sans);
+  font-size:.62rem;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;color:#aaa;cursor:pointer;
+  transition:all .2s;
+}
+.hlogout:hover{border-color:var(--red);color:var(--red);}
+
+/* ═══ MAIN ═══ */
+main{max-width:980px;width:100%;margin:0 auto;padding:48px 24px;}
+
+/* ═══ GREETING ═══ */
+.greeting-block {
+  margin-bottom:52px;
+  border-left:2px solid var(--red);
+  padding-left:28px;
+}
+.greeting-eyebrow {
+  font-size:.6rem;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--red);margin-bottom:12px;
+}
+.greeting-name {
+  font-family:var(--serif);font-size:2.8rem;font-weight:300;
+  color:var(--dark);letter-spacing:-1px;line-height:1.1;
+  margin-bottom:8px;
+}
+.greeting-meta {
+  font-size:.72rem;font-weight:500;letter-spacing:1px;
+  text-transform:uppercase;color:#bbb;
+}
+
+/* ═══ SECTION LABEL ═══ */
+.section-label {
+  font-size:.6rem;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:#bbb;
+  margin-bottom:24px;
+  display:flex;align-items:center;gap:16px;
+}
+.section-label::after {
+  content:'';flex:1;height:1px;background:#eaeaea;
+}
+
+/* ═══ APP GRID ═══ */
+.app-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:2px;
+  margin-bottom:48px;
+  background:#eaeaea;
+  border:1px solid #eaeaea;
+}
+.app-card {
+  background:var(--white);
+  padding:32px 28px;
+  cursor:pointer;
+  transition:all .25s;
+  text-decoration:none;color:inherit;
+  display:flex;flex-direction:column;gap:12px;
+  position:relative;
+}
+.app-card:hover{background:#fafafa;transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.08);}
+.app-card.soon{opacity:.5;cursor:not-allowed;}
+.app-card.soon:hover{background:var(--white);transform:none;box-shadow:none;}
+.app-card-accent {
+  position:absolute;top:0;left:0;right:0;height:2px;
+}
+.app-card.live .app-card-accent{background:var(--red);}
+.app-card.live-blue .app-card-accent{background:#2563eb;}
+.card-badge {
+  font-size:.55rem;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;padding:3px 8px;
+  width:fit-content;
+}
+.badge-live{background:#f0fff4;color:#16a34a;}
+.badge-soon{background:#f3f4f6;color:#9ca3af;}
+.card-icon{font-size:1.8rem;line-height:1;margin-bottom:4px;}
+.card-title {
+  font-family:var(--serif);font-size:1.15rem;font-weight:600;
+  color:var(--dark);letter-spacing:.2px;
+}
+.card-desc{font-size:.72rem;color:#999;line-height:1.65;font-weight:400;}
+
+/* ═══ NEWS ═══ */
+.news-grid {
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:2px;background:#eaeaea;border:1px solid #eaeaea;
+  margin-bottom:48px;
+}
+.news-card {
+  background:var(--white);padding:28px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.news-eyebrow {
+  font-size:.55rem;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:var(--red);
+}
+.news-title {
+  font-family:var(--serif);font-size:1.1rem;font-weight:500;
+  color:var(--dark);line-height:1.35;
+}
+.news-body{font-size:.75rem;color:#888;line-height:1.6;}
+
+/* ═══ FOOTER ═══ */
+footer {
+  text-align:center;color:#ccc;font-size:.6rem;letter-spacing:1.5px;
+  text-transform:uppercase;padding:28px;
+  border-top:1px solid #eee;background:var(--white);
+  margin-top:24px;
+}
+footer strong{color:var(--dark);}
+
+@media(max-width:640px){
+  header{padding:0 20px;}
+  main{padding:28px 16px;}
+  .greeting-name{font-size:2rem;}
+  .app-grid{grid-template-columns:1fr 1fr;}
+  .login-panel{padding:36px 28px 32px;}
+  .login-headline{font-size:1.8rem;}
+  .hdate,.huser-role{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay">
+  <div class="login-panel">
+    <div class="login-logo">
+      <div class="login-ev-box">E&amp;V</div>
+      <div>
+        <div class="login-brand-name">Engel &amp; Völkers</div>
+        <div class="login-brand-sub">Mittleres Ruhrgebiet</div>
+      </div>
+    </div>
+    <div class="login-headline">Willkommen</div>
+    <div class="login-tagline">Mitarbeiterportal · Interner Zugang</div>
+
+    <div class="lf required">
+      <label>E-Mail-Adresse</label>
+      <input type="email" id="loginEmail" placeholder="vorname@engelvoelkers.de" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <div class="lf required">
+      <label>Passwort</label>
+      <input type="password" id="loginPw" placeholder="Passwort eingeben" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Anmelden</button>
+    <div class="login-error" id="loginError">⚠ Anmeldung fehlgeschlagen. Bitte prüfe E-Mail und Passwort.</div>
+    <div class="login-footer">
+      Nur für autorisierte Mitarbeiter · Engel &amp; Völkers Mittleres Ruhrgebiet<br/>
+      Bei Problemen bitte die Geschäftsführung kontaktieren.
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="hlogo">
+    <div class="hlogo-ev">E&amp;V</div>
+    <div>
+      <div class="hlogo-name">Engel &amp; Völkers</div>
+      <div class="hlogo-sub">Mittleres Ruhrgebiet · Mitarbeiterportal</div>
+    </div>
+  </div>
+  <div class="hright">
+    <div class="hdate" id="headerDate"></div>
+    <div class="huser">
+      <div class="huser-avatar" id="headerAvatar">–</div>
+      <div>
+        <div class="huser-name" id="headerName">–</div>
+        <div class="huser-role" id="headerEmail">–</div>
+      </div>
+    </div>
+    <button class="hlogout" onclick="doLogout()">Abmelden</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main>
+
+  <div class="greeting-block">
+    <div class="greeting-eyebrow" id="greetEyebrow">Guten Tag</div>
+    <div class="greeting-name" id="greetName">–</div>
+    <div class="greeting-meta" id="greetMeta">–</div>
+  </div>
+
+  <div class="section-label">Apps &amp; Tools</div>
+
+  <div class="app-grid">
+
+    <a class="app-card live" href="ev-umsatzplanung.html" target="_blank">
+      <div class="app-card-accent"></div>
+      <span class="card-badge badge-live">Live</span>
+      <div class="card-icon">💰</div>
+      <div class="card-title">Umsatzplanung</div>
+      <div class="card-desc">Gehalts- &amp; Provisionsrechner für Fast Track und Club 500. Jahresaufstellung auf Knopfdruck.</div>
+    </a>
+
+    <a class="app-card live-blue" href="ev-socialmedia.html" target="_blank">
+      <div class="app-card-accent"></div>
+      <span class="card-badge badge-live">Live</span>
+      <div class="card-icon">📲</div>
+      <div class="card-title">Social Media Manager</div>
+      <div class="card-desc">Content-Anfragen schnell und strukturiert ans Social-Media-Team übermitteln.</div>
+    </a>
+
+    <a class="app-card live" href="ev-weekly.html" target="_blank">
+      <div class="app-card-accent"></div>
+      <span class="card-badge badge-live">Live</span>
+      <div class="card-icon">📋</div>
+      <div class="card-title">Weekly Check-In</div>
+      <div class="card-desc">Wöchentliche Qualitätssicherung und persönliche Weiterentwicklung. Ehrliche Selbsteinschätzung.</div>
+    </a>
+
+    <a class="app-card" href="ev-finanzierung.html" style="text-decoration:none;color:inherit;">
+      <div class="app-card-accent" style="background:var(--blue,#1565c0);"></div>
+      <span class="card-badge" style="background:#e8f0ff;color:#1565c0;">Live</span>
+      <div class="card-icon">🏦</div>
+      <div class="card-title">Finanzierungsmanager</div>
+      <div class="card-desc">Kundendaten, Objektinfos und Finanzierungswunsch strukturiert an Partnerbanken übermitteln.</div>
+    </a>
+
+    <div class="app-card soon" onclick="comingSoon('Feedback')">
+      <div class="app-card-accent"></div>
+      <span class="card-badge badge-soon">Demnächst</span>
+      <div class="card-icon">💬</div>
+      <div class="card-title">Feedback</div>
+      <div class="card-desc">Ideen, Anregungen und Rückmeldungen direkt ans Team oder die Geschäftsführung.</div>
+    </div>
+
+    <a class="app-card" href="ev-werbemittel.html" style="text-decoration:none;color:inherit;">
+      <div class="app-card-accent" style="background:#B5713A;"></div>
+      <span class="card-badge" style="background:#f5ede0;color:#B5713A;">Live</span>
+      <div class="card-icon">🛍️</div>
+      <div class="card-title">Brand-Shop</div>
+      <div class="card-desc">Visitenkarten, Schilder, Werbemittel und mehr — CI-konform für alle Standorte bestellen.</div>
+    </a>
+
+  </div>
+
+  <div class="section-label">Aktuelles</div>
+
+  <div class="news-grid">
+    <div class="news-card">
+      <div class="news-eyebrow">Neuigkeiten</div>
+      <div class="news-title">Neues Markt&shy;update verfügbar</div>
+      <div class="news-body">Die aktuellen Markt&shy;daten für das Mittlere Ruhrgebiet wurden aktualisiert. Bitte die Einwertungsgrundlagen entsprechend anpassen.</div>
+    </div>
+    <div class="news-card">
+      <div class="news-eyebrow">Erinnerung</div>
+      <div class="news-title">Weekly Check-In bis Freitag einreichen</div>
+      <div class="news-body">Bitte den wöchentlichen Check-In rechtzeitig ausfüllen. Vollständigkeit und Ehrlichkeit sind entscheidend für die Qualitätssicherung.</div>
+    </div>
+    <div class="news-card">
+      <div class="news-eyebrow">Brand Portal</div>
+      <div class="news-title">Neue Marken&shy;kampagne jetzt aktiv</div>
+      <div class="news-body">Die neue Markenkampagne steht im Brand Portal zur Verfügung. Bitte Signaturen und Marketingmaterialien entsprechend aktualisieren.</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <strong>Engel &amp; Völkers</strong> · Mittleres Ruhrgebiet · Mitarbeiterportal · Nur für autorisierte Mitarbeiter
+</footer>
+
+<script>
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw    = document.getElementById('loginPw').value;
+  const btn   = document.getElementById('loginBtn');
+  const err   = document.getElementById('loginError');
+
+  if (!email || !pw) {
+    err.textContent = '⚠ Bitte E-Mail und Passwort eingeben.';
+    err.style.display = 'block'; return;
+  }
+
+  btn.textContent = 'Anmelden …';
+  btn.disabled = true;
+  err.style.display = 'none';
+
+  try {
+    // Supabase Auth Login
+    const user = await EvDB.login(email, pw);
+    applyUser(user);
+    document.getElementById('loginOverlay').style.display = 'none';
+  } catch(e) {
+    err.textContent = '⚠ ' + (e.message || 'Anmeldung fehlgeschlagen.');
+    err.style.display = 'block';
+    document.getElementById('loginPw').focus();
+  } finally {
+    btn.textContent = 'Anmelden';
+    btn.disabled = false;
+  }
+}
+
+function applyUser(user) {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('de-DE', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  const hour = now.getHours();
+  let greeting = hour < 12 ? 'Guten Morgen' : hour < 18 ? 'Guten Tag' : 'Guten Abend';
+
+  document.getElementById('greetEyebrow').textContent = dateStr;
+  document.getElementById('greetName').textContent = user.firstName || user.fullName;
+  document.getElementById('greetMeta').textContent = user.email || 'Engel & Völkers · Mittleres Ruhrgebiet';
+
+  document.getElementById('headerDate').textContent = dateStr;
+  document.getElementById('headerAvatar').textContent = user.initials;
+  document.getElementById('headerName').textContent = user.fullName;
+  document.getElementById('headerEmail').textContent = user.email || 'E&V Mittleres Ruhrgebiet';
+
+  // Update app links with user data
+  document.querySelectorAll('.app-card[href]').forEach(a => {
+    const base = a.getAttribute('href').split('?')[0];
+    a.setAttribute('href', base);
+  });
+}
+
+async function doLogout() {
+  if (confirm('Möchtest du dich wirklich abmelden?')) {
+    await EvDB.logout();
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPw').value = '';
+    document.getElementById('loginOverlay').style.display = 'flex';
+  }
+}
+
+function comingSoon(name) {
+  alert('⏳ „' + name + '" befindet sich aktuell in Entwicklung und wird in Kürze verfügbar sein.');
+}
+
+// Supabase session restore on load
+(async function() {
+  try {
+    const user = await EvDB.getCurrentUser();
+    if (user) {
+      sessionStorage.setItem('evUser', JSON.stringify(user));
+      applyUser(user);
+      document.getElementById('loginOverlay').style.display = 'none';
+      return;
+    }
+  } catch(e) {}
+  // Fallback: check sessionStorage
+  const saved = sessionStorage.getItem('evUser');
+  if (saved) {
+    try {
+      applyUser(JSON.parse(saved));
+      document.getElementById('loginOverlay').style.display = 'none';
+    } catch(e) {}
+  }
+})();
+
+// Set date
+const now = new Date();
+document.getElementById('headerDate').textContent =
+  now.toLocaleDateString('de-DE', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+</script>
+</body>
+</html>
