@@ -280,10 +280,7 @@ footer{text-align:center;color:#bbb;font-size:.6rem;letter-spacing:1.5px;text-tr
         <label for="consent1"><strong>Wahrheitspflicht — ich bestätige:</strong><br/>Alle meine Angaben in diesem Check-In entsprechen der Wahrheit. Ich beantworte jede Frage nach bestem Wissen und Gewissen und bin mir bewusst, dass dieses Dokument als interne Grundlage für Entwicklungsgespräche genutzt werden kann.</label>
       </div>
     </div>
-    <div class="fg">
-      <label class="lbl">Vollständiger Name <span class="req">*</span></label>
-      <input type="text" id="userName" placeholder="Vorname Nachname"/>
-    </div>
+    <input type="hidden" id="userName" value=""/>
     <div class="row">
       <div class="fg half">
         <label class="lbl">Kalenderwoche <span class="req">*</span></label>
@@ -323,9 +320,10 @@ footer{text-align:center;color:#bbb;font-size:.6rem;letter-spacing:1.5px;text-tr
     <div id="summaryContent"></div>
     <div class="action-row">
       <button class="btn btn-outline" onclick="goStep(2)">← Zurück</button>
-      <button class="btn btn-primary" onclick="submitCheckin()">✅ Abschließen &amp; bestätigen</button>
       <button class="btn btn-secondary" onclick="printSummary()">🖨 PDF / Drucken</button>
+      <button class="btn btn-primary" onclick="submitCheckin()">📤 Daten übermitteln</button>
     </div>
+    <div id="submitStatus" style="display:none;margin-top:12px;padding:10px 16px;font-size:.72rem;background:#f0faf5;border-left:3px solid #2d7a4f;color:#2d7a4f;"></div>
   </div>
 </div>
 
@@ -442,6 +440,12 @@ const ANS_ICON={full:"✅",partial:"🔶",no:"❌",na:"➖"};
 let selectedRole="",answers=[],currentStep=1;
 
 (function init(){
+  // Pre-fill name from session
+  try {
+    const u = JSON.parse(sessionStorage.getItem('evUser')||'{}');
+    const nameEl = document.getElementById('userName');
+    if(nameEl && u.fullName) nameEl.value = u.fullName;
+  } catch(_) {}
   const kw=document.getElementById("userKW");
   for(let i=1;i<=53;i++) kw.innerHTML+=`<option value="${i}">KW ${i}</option>`;
   const now=new Date();
@@ -458,7 +462,6 @@ function selectRole(r){selectedRole=r;document.getElementById("roleIB").classLis
 
 function startCheckin(){
   if(!document.getElementById("consent1").checked){alert("Bitte bestätige zunächst die Wahrheitspflicht.");return;}
-  if(!document.getElementById("userName").value.trim()){alert("Bitte gib deinen vollständigen Namen ein.");return;}
   if(!selectedRole){alert("Bitte wähle deine Rolle aus.");return;}
   const qs=QUESTIONS[selectedRole];
   answers=qs.map(()=>({ans:null,comment:""}));
@@ -604,8 +607,64 @@ function buildSummary(){
   document.getElementById("summaryContent").innerHTML=html;
 }
 
-function printSummary(){buildSummary();window.print();}
-function submitCheckin(){goStep(4);}
+async function printSummary(){
+  buildSummary();
+  // Save on print too
+  const qs = QUESTIONS[selectedRole];
+  const kw   = parseInt(document.getElementById("userKW").value);
+  const year = parseInt(document.getElementById("userYear").value);
+  const roleLabel = selectedRole==="IB"?"Immobilienberater/in":"Kernteam";
+  const scorable = answers.filter(a=>a.ans!==null&&a.ans!=="na");
+  const maxPts = scorable.length*3;
+  const pts = scorable.reduce((s,a)=>{const o=ANS_OPTIONS.find(x=>x.key===a.ans);return s+(o&&o.pts!=null?o.pts:0);},0);
+  const pct = maxPts>0?Math.round(pts/maxPts*100):0;
+  let grade=""; if(pct>=95)grade="Topform"; else if(pct>=85)grade="Sehr gut"; else if(pct>=70)grade="Gut"; else if(pct>=50)grade="Ausbaufähig"; else grade="Nachholbedarf";
+  const offenePunkte = answers.map((a,i)=>(a.ans==="partial"||a.ans==="no")?qs[i].title:null).filter(Boolean);
+  const antworten = {}; qs.forEach((q,i)=>{ antworten[i]={frage:q.title,antwort:answers[i].ans||"na",kommentar:answers[i].comment||""}; });
+  try { await EvDB.saveWeekly({kw,jahr:year,rolle:roleLabel,scorePct:pct,scoreNote:grade,antworten,offenePunkte,kommentare:{}}); } catch(e){ console.warn('[Weekly] DB:', e.message); }
+  window.print();
+}
+async function submitCheckin(){
+  const qs = QUESTIONS[selectedRole];
+  const kw   = parseInt(document.getElementById("userKW").value);
+  const year = parseInt(document.getElementById("userYear").value);
+  const roleLabel = selectedRole==="IB"?"Immobilienberater/in":"Kernteam";
+  const scorable = answers.filter(a=>a.ans!==null&&a.ans!=="na");
+  const maxPts = scorable.length*3;
+  const pts = scorable.reduce((s,a)=>{const o=ANS_OPTIONS.find(x=>x.key===a.ans);return s+(o&&o.pts!=null?o.pts:0);},0);
+  const pct = maxPts>0?Math.round(pts/maxPts*100):0;
+  let grade="";
+  if(pct>=95)grade="Topform";
+  else if(pct>=85)grade="Sehr gut";
+  else if(pct>=70)grade="Gut";
+  else if(pct>=50)grade="Ausbaufähig";
+  else grade="Nachholbedarf";
+
+  const offenePunkte = answers.map((a,i)=>(a.ans==="partial"||a.ans==="no")?qs[i].title:null).filter(Boolean);
+  const antworten = {};
+  qs.forEach((q,i)=>{ antworten[i] = {frage:q.title, antwort:answers[i].ans||"na", kommentar:answers[i].comment||""}; });
+  const kommentare = {};
+  answers.forEach((a,i)=>{ if(a.comment) kommentare[i]=a.comment; });
+
+  try {
+    await EvDB.saveWeekly({
+      kw, jahr:year, rolle:roleLabel,
+      scorePct:pct, scoreNote:grade,
+      antworten, offenePunkte, kommentare
+    });
+    console.info('[E&V Weekly] ✓ In Supabase gespeichert');
+  } catch(e) {
+    console.error('[E&V Weekly] Fehler beim Speichern:', e.message);
+    alert('Hinweis: Speichern in Datenbank fehlgeschlagen ('+e.message+'). Check-In wird trotzdem angezeigt.');
+  }
+  // Show success status inline
+  const statusEl = document.getElementById('submitStatus');
+  if(statusEl){
+    statusEl.textContent = '✓ Check-In erfolgreich in Datenbank gespeichert — ' + new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}) + ' Uhr';
+    statusEl.style.display = 'block';
+  }
+  goStep(4);
+}
 
 function goStep(n){
   document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
@@ -615,20 +674,7 @@ function goStep(n){
   if(n===1)document.getElementById("liveScoreBar").style.display="none";
 }
 
-// ── SUPABASE SAVE (beim Abschließen) ───────────────────────────
-async function saveWeeklyToDB(userName, kw, jahr, rolle, scorePct, scoreNote, antworten, offenePunkte, kommentare) {
-  try {
-    if (typeof EvDB !== 'undefined') {
-      await EvDB.saveWeekly({
-        userName, kw, jahr, rolle,
-        scorePct, scoreNote,
-        antworten: antworten || {},
-        offenePunkte: offenePunkte || [],
-        kommentare: kommentare || {}
-      });
-    }
-  } catch(e) { console.warn('[E&V Weekly] DB-Speicherung fehlgeschlagen:', e.message); }
-}
+
 
 </script>
 </body>

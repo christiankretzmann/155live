@@ -600,8 +600,10 @@ footer strong{color:var(--dark);}
 <div class="act-row">
   <button class="btn btn-secondary" onclick="goStep(3)">← Finanzierung</button>
   <button class="btn btn-outline" onclick="buildAndPreview()">👁 Vorschau</button>
-  <button class="btn btn-primary" onclick="doSubmit()">📧 Anfrage absenden</button>
+  <button class="btn btn-secondary" onclick="doPrint()">🖨 PDF / Drucken</button>
+  <button class="btn btn-primary" onclick="doSubmit()">📤 Daten übermitteln &amp; E-Mail</button>
 </div>
+<div id="finStatus" style="display:none;margin-top:12px;padding:10px 16px;font-size:.72rem;background:#f0faf5;border-left:3px solid #2d7a4f;color:#2d7a4f;"></div>
 </div>
 </div>
 
@@ -613,8 +615,8 @@ footer strong{color:var(--dark);}
 <div id="prevContent" style="margin-top:20px;"></div>
 <div class="act-row" style="margin-top:24px;">
   <button class="btn btn-secondary" onclick="goStep(4)">← Bearbeiten</button>
-  <button class="btn btn-primary" onclick="doSubmit()">📧 Jetzt absenden</button>
-  <button class="btn btn-dark" onclick="doPrint()">🖨 PDF / Drucken</button>
+  <button class="btn btn-secondary" onclick="doPrint()">🖨 PDF / Drucken</button>
+  <button class="btn btn-primary" onclick="doSubmit()">📤 Daten übermitteln &amp; E-Mail</button>
 </div>
 </div>
 </div>
@@ -652,6 +654,12 @@ const docStat={};
 
 // ── INIT ───────────────────────────────────────────
 (function init(){
+  // Prefill berater from session
+  try {
+    const u = JSON.parse(sessionStorage.getItem('evUser')||'{}');
+    if(u.fullName){const e=document.getElementById('beraterName');if(e)e.value=u.fullName;}
+    if(u.email){const e=document.getElementById('beraterEmail');if(e)e.value=u.email;}
+  } catch(_) {}
   const u=sessionStorage.getItem('evUser');
   if(u){try{const d=JSON.parse(u);setV('hUN',d.fullName||'');setV2('hUE',d.email||'Engel & Völkers');setTimeout(()=>{setV('beraterName',d.fullName||'');setV('beraterEmail',d.email||'');},60);}catch(e){}}
   setV('anfrageDate',new Date().toISOString().split('T')[0]);
@@ -967,14 +975,14 @@ function buildAndPreview(){
 }
 
 // ── SUBMIT ─────────────────────────────────────────
-function doSubmit(){
+async function doSubmit(){
   if(!document.getElementById('chkDsgvo')?.checked){alert('Bitte DSGVO-Einwilligung bestätigen.');return;}
   if(!document.getElementById('chkVollst')?.checked){alert('Bitte Vollständigkeit bestätigen.');return;}
   const bEmail=selBankKey==='and'?gv('bankCustomEmail'):bankEmails[selBankKey];
   if(!bEmail){alert('Bitte E-Mail-Adresse der Bank eingeben.');return;}
   const bName=selBankKey==='and'?gv('bankCustomName'):bankNames[selBankKey];
   const kn1=`${gv('kn1_vorname')} ${gv('kn1_nachname')}`.trim();
-  const kn2=kn2On?` + ${gv('kn2_vorname')} ${gv('kn2_nachname')}`:'';
+  const kn2=kn2On?` + ${gv('kn2_vorname')} ${gv('kn2_nachname')}`.trim():'';
   const subj=encodeURIComponent(`Finanzierungsanfrage: ${gv('obj_str')}, ${gv('obj_plz')} ${gv('obj_ort')} — ${kn1}${kn2} — E&V Mittleres Ruhrgebiet`);
   const body=encodeURIComponent(buildEmailBody(bName,kn1,kn2));
   const berMail=gv('beraterEmail');
@@ -982,10 +990,48 @@ function doSubmit(){
   let ml=`mailto:${bEmail}`;
   if(selfC&&berMail)ml+=`?cc=${berMail}&subject=${subj}&body=${body}`;
   else ml+=`?subject=${subj}&body=${body}`;
+
+  // Save to Supabase BEFORE opening mailto
+  try {
+    await EvDB.saveFinanzierung({
+      referenz:        gv('referenz'),
+      kn1_name:        kn1,
+      kn1_gebdat:      gv('kn1_gebdat')||null,
+      kn1_adresse:     gv('kn1_adresse'),
+      kn1_email:       gv('kn1_email'),
+      kn1_tel:         gv('kn1_tel'),
+      kn1_beschaeft:   empType.kn1,
+      kn1_netto:       String(getKN1Income()),
+      kn2_name:        kn2On ? (gv('kn2_vorname')+' '+gv('kn2_nachname')).trim() : null,
+      kn2_netto:       kn2On ? String(gi('kn2_netto')) : null,
+      obj_art:         document.querySelector('#objGrid .obj-btn.sel .obj-lbl')?.textContent||null,
+      obj_adresse:     gv('obj_str')+', '+gv('obj_plz')+' '+gv('obj_ort'),
+      obj_kaufpreis:   String(gi('obj_kp')),
+      obj_baujahr:     gv('obj_bj'),
+      obj_nutzung:     document.querySelector('#obj_nutz .radio-btn.sel')?.textContent||null,
+      obj_wohnfl:      String(gi('obj_wfl')),
+      obj_energie_kl:  gv('obj_enkl'),
+      fin_ek:          String(gi('f3_ek')),
+      fin_ek_quote:    String(gi('f3_ekq')),
+      fin_darlehen:    String(gi('f3_darlehen')),
+      fin_gesamt:      String(gi('f3_gesamt')),
+      fin_zinsbindung: gv('f3_zinsb'),
+      fin_tilgung:     String(parseFloat(document.getElementById('f3_tilg')?.value||2)),
+      fin_sondertilg:  gv('f3_sonder'),
+      foerderungen:    ['261','124','297','300','nrw','beg','riester'].filter(id=>document.getElementById('f_'+id)?.checked).join(', ')||null,
+      zielbank:        bName
+    });
+    console.info('[E&V Finanzierung] ✓ In Supabase gespeichert');
+  } catch(e) {
+    console.error('[E&V Finanzierung] Fehler:', e.message);
+    alert('Hinweis: Speichern in Datenbank fehlgeschlagen ('+e.message+'). E-Mail wird trotzdem geöffnet.');
+  }
+
   window.location.href=ml;
-  saveFinanzierungToDB(); // Supabase
   buildSummaryHTML('prevContent');
   buildPrintSection();
+  const st=document.getElementById('finStatus');
+  if(st){st.textContent='✓ Anfrage gespeichert & E-Mail geöffnet — '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr';st.style.display='block';}
   goStep(6,true);
 }
 
@@ -1072,6 +1118,36 @@ function doPrint(){
   window.print();
 }
 
+function doPrint(){
+  buildPrintSection();
+  // Silent save on print
+  (async()=>{
+    try {
+      await EvDB.saveFinanzierung({
+        referenz:gv('referenz'),kn1_name:(gv('kn1_vorname')+' '+gv('kn1_nachname')).trim(),
+        kn1_gebdat:gv('kn1_gebdat'),kn1_adresse:gv('kn1_adresse'),
+        kn1_email:gv('kn1_email'),kn1_tel:gv('kn1_tel'),
+        kn1_beschaeft:empType.kn1,kn1_netto:String(getKN1Income()),
+        kn2_name:kn2On?(gv('kn2_vorname')+' '+gv('kn2_nachname')).trim():null,
+        kn2_netto:kn2On?String(gi('kn2_netto')):null,
+        obj_art:document.querySelector('#objGrid .obj-btn.sel .obj-lbl')?.textContent||null,
+        obj_adresse:gv('obj_str')+', '+gv('obj_plz')+' '+gv('obj_ort'),
+        obj_kaufpreis:String(gi('obj_kp')),obj_baujahr:gv('obj_bj'),
+        obj_nutzung:document.querySelector('#obj_nutz .radio-btn.sel')?.textContent||null,
+        obj_wohnfl:String(gi('obj_wfl')),obj_energie_kl:gv('obj_enkl'),
+        fin_ek:String(gi('f3_ek')),fin_ek_quote:String(gi('f3_ekq')),
+        fin_darlehen:String(gi('f3_darlehen')),fin_gesamt:String(gi('f3_gesamt')),
+        fin_zinsbindung:gv('f3_zinsb'),
+        fin_tilgung:String(parseFloat(document.getElementById('f3_tilg')?.value||2)),
+        fin_sondertilg:gv('f3_sonder'),
+        foerderungen:['261','124','297','300','nrw','beg','riester'].filter(id=>document.getElementById('f_'+id)?.checked).join(', ')||null,
+        zielbank:selBankKey==='and'?gv('bankCustomName'):(bankNames[selBankKey]||null)
+      });
+    } catch(e){console.warn('[Finanzierung] Druck-Save:',e.message);}
+  })();
+  window.print();
+}
+
 function buildPrintSection(){
   const kn1=`${gv('kn1_vorname')} ${gv('kn1_nachname')}`.trim();
   const kn2=kn2On?` + ${gv('kn2_vorname')} ${gv('kn2_nachname')}`:'';
@@ -1141,40 +1217,7 @@ function buildPrintSection(){
 // Listen to kaufpreis changes for step3 sync
 document.getElementById('obj_kp')?.addEventListener('input',()=>{if(curStep===3)syncStep3();});
 
-// ── SUPABASE SAVE (beim Absenden) ──────────────────────────────
-async function saveFinanzierungToDB() {
-  try {
-    if (typeof EvDB === 'undefined') return;
-    const data = {
-      beraterName: gv('beraterName'), beraterEmail: gv('beraterEmail'),
-      referenz: gv('referenz'),
-      kn1_vorname: gv('kn1_vorname'), kn1_nachname: gv('kn1_nachname'),
-      kn1_gebdat: gv('kn1_gebdat'), kn1_adresse: gv('kn1_adresse'),
-      kn1_email: gv('kn1_email'), kn1_tel: gv('kn1_tel'),
-      kn1_beschaeft: empType.kn1,
-      kn1_netto: String(getKN1Income()),
-      kn2_name: kn2On ? (gv('kn2_vorname')+' '+gv('kn2_nachname')).trim() : null,
-      kn2_netto: kn2On ? String(gi('kn2_netto')) : null,
-      obj_art: document.querySelector('#objGrid .obj-btn.sel .obj-lbl')?.textContent || null,
-      obj_adresse: gv('obj_str')+', '+gv('obj_plz')+' '+gv('obj_ort'),
-      obj_kaufpreis: String(gi('obj_kp')),
-      obj_baujahr: gv('obj_bj'),
-      obj_nutzung: document.querySelector('#obj_nutz .radio-btn.sel')?.textContent || null,
-      obj_wohnfl: String(gi('obj_wfl')),
-      obj_energie_kl: gv('obj_enkl'),
-      fin_ek: String(gi('f3_ek')),
-      fin_ek_quote: String(gi('f3_ekq')),
-      fin_darlehen: String(gi('f3_darlehen')),
-      fin_gesamt: String(gi('f3_gesamt')),
-      fin_zinsbindung: gv('f3_zinsb'),
-      fin_tilgung: String(parseFloat(document.getElementById('f3_tilg')?.value||2)),
-      fin_sondertilg: gv('f3_sonder'),
-      foerderungen: ['261','124','297','300','nrw','beg','riester'].filter(id=>document.getElementById('f_'+id)?.checked).join(', ')||null,
-      zielbank: selBankKey==='and' ? gv('bankCustomName') : (bankNames[selBankKey]||null)
-    };
-    await EvDB.saveFinanzierung(data);
-  } catch(e) { console.warn('[E&V Finanzierung] DB-Speicherung fehlgeschlagen:', e.message); }
-}
+
 
 </script>
 </body>

@@ -290,13 +290,9 @@ footer{text-align:center;color:#bbb;font-size:.6rem;letter-spacing:1.5px;text-tr
       </div>
       <div class="row">
         <div class="fg half">
-          <label class="lbl">Dein Name <span class="req">*</span></label>
-          <input type="text" id="senderName" placeholder="Max Mustermann"/>
+          <input type="hidden" id="senderName"/>
         </div>
-        <div class="fg half">
-          <label class="lbl">Deine E-Mail (für Bestätigung)</label>
-          <input type="email" id="senderEmail" placeholder="max@engelvoelkers.com"/>
-        </div>
+        <input type="hidden" id="senderEmail"/>
       </div>
       <div class="nav-row"><div></div><button class="btn btn-primary" onclick="goStep(2)">Weiter →</button></div>
     </div>
@@ -541,7 +537,7 @@ function removeFile(name){uploadedFiles=uploadedFiles.filter(f=>f.name!==name);r
 function renderFileList(){const list=document.getElementById('fileList');list.innerHTML='';uploadedFiles.forEach(f=>{const icon=f.type.startsWith('video')?'🎬':f.type.startsWith('image')?'🖼️':'📄';const size=f.size>1048576?(f.size/1048576).toFixed(1)+' MB':(f.size/1024).toFixed(0)+' KB';list.innerHTML+=`<div class="file-item"><span>${icon}</span><span class="fi-name">${f.name}</span><span class="fi-size">${size}</span><span class="fi-del" onclick="removeFile('${f.name}')">✕</span></div>`;});}
 
 function goStep(n){
-  if(n>1&&currentStep===1){if(!selectedType){alert('Bitte eine Beitragsart auswählen.');return;}if(!document.getElementById('senderName').value.trim()){alert('Bitte deinen Namen eingeben.');return;}}
+  if(n>1&&currentStep===1){if(!selectedType){alert('Bitte eine Beitragsart auswählen.');return;}}
   if(n>2&&currentStep===2){const platforms=[...document.querySelectorAll('#platformGroup .pill.selected')];if(platforms.length===0){alert('Bitte mindestens eine Plattform auswählen.');return;}if(!document.getElementById('captionText').value.trim()){alert('Bitte eine Caption-Idee / Kurztext eingeben.');return;}}
   if(n>4&&currentStep===4){if(selectedType==='immobilie'&&!document.getElementById('chkOwner').checked){alert('Bitte bestätige die Eigentümereinwilligung.');return;}if(selectedType==='event'&&!document.getElementById('chkPersons').checked){alert('Bitte bestätige die Personeneinwilligung.');return;}}
   if(n===5)buildSummary();
@@ -598,15 +594,73 @@ function buildSummary(){
   document.getElementById('summaryContent').innerHTML=html;
 }
 
+// Pre-fill sender from session
+(function(){
+  try {
+    const u = JSON.parse(sessionStorage.getItem('evUser')||'{}');
+    ['senderName','senderEmail'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(!el) return;
+      if(id==='senderName'&&u.fullName) el.value=u.fullName;
+      if(id==='senderEmail'&&u.email) el.value=u.email;
+    });
+  } catch(_) {}
+})();
+
 function v(id){return(document.getElementById(id)?.value||'').trim();}
 function submitForm(){goStep(6);updateProgress(6);}
 function printSummary(){buildSummary();window.print();}
-function sendEmail(){
+async function printRequest(){
+  // Save on print too
+  try {
+    const plattformen = Array.from(document.querySelectorAll('.plat-btn.selected')).map(b=>b.textContent.trim());
+    await EvDB.saveSocialMedia({
+      beitragsart: document.querySelector('.type-card.selected .type-label')?.textContent?.trim()||null,
+      plattformen,
+      format: document.querySelector('.format-btn.selected')?.textContent?.trim()||null,
+      ton: document.querySelector('.ton-btn.selected')?.textContent?.trim()||null,
+      logoVariante: document.querySelector('.logo-btn.selected')?.textContent?.trim()||null,
+      dringlichkeit: document.querySelector('.urg-btn.selected')?.textContent?.trim()||null,
+      inhalt: v('postText')||v('postCaption')||null,
+      objektDetails: v('objAddress')||null,
+      anhaengeAnz: document.querySelectorAll('.file-item').length
+    });
+  } catch(e){ console.warn('[Social] DB:', e.message); }
+  window.print();
+}
+
+async function sendEmail(){
+  // Save to Supabase
+  try {
+    const plattformen = Array.from(document.querySelectorAll('.plat-btn.selected')).map(b=>b.textContent.trim());
+    const format = document.querySelector('.format-btn.selected')?.textContent?.trim() || null;
+    const ton = document.querySelector('.ton-btn.selected')?.textContent?.trim() || null;
+    const logo = document.querySelector('.logo-btn.selected')?.textContent?.trim() || null;
+    const dring = document.querySelector('.urg-btn.selected')?.textContent?.trim() || null;
+    const beitragsart = document.querySelector('.type-card.selected .type-label')?.textContent?.trim() || null;
+    await EvDB.saveSocialMedia({
+      beitragsart,
+      plattformen,
+      format,
+      ton,
+      logoVariante: logo,
+      dringlichkeit: dring,
+      inhalt: v('postText') || v('postCaption') || null,
+      objektDetails: v('objAddress') || null,
+      anhaengeAnz: document.querySelectorAll('.file-item').length
+    });
+    console.info('[E&V Social] ✓ In Supabase gespeichert');
+  } catch(e) {
+    console.error('[E&V Social] Fehler:', e.message);
+  }
+  // Send email
   const to='socialmedia@engelvoelkers-ruhrgebiet.de';
   const cc='geschaeftsfuehrung@engelvoelkers-ruhrgebiet.de';
-  const subject=encodeURIComponent('Social Media Anfrage: '+(document.querySelector('.type-card.selected .type-label')?.textContent||'')+' — '+v('senderName'));
+  const subject=encodeURIComponent('Social Media Anfrage: '+(document.querySelector('.type-card.selected .type-label')?.textContent||''));
   const body=encodeURIComponent(buildEmailBody());
   window.location.href=`mailto:${to}?cc=${cc}&subject=${subject}&body=${body}`;
+  const st=document.getElementById('smStatus');
+  if(st){st.textContent='✓ Anfrage gespeichert & E-Mail geöffnet — '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr';st.style.display='block';}
 }
 function buildEmailBody(){
   const urgLabels={u1:'Flexibel',u2:'Bald (diese Woche)',u3:'Dringend (24–48 Std.)'};
@@ -615,14 +669,7 @@ function buildEmailBody(){
 }
 function resetForm(){location.reload();}
 
-// ── SUPABASE SAVE (beim Absenden) ──────────────────────────────
-async function saveSocialMediaToDB(data) {
-  try {
-    if (typeof EvDB !== 'undefined') {
-      await EvDB.saveSocialMedia(data);
-    }
-  } catch(e) { console.warn('[E&V Social] DB-Speicherung fehlgeschlagen:', e.message); }
-}
+
 
 </script>
 </body>
