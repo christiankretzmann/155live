@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Inbox | Engel &amp; Völkers</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="ev-supabase.js"></script>
+<style>
+:root{
+  --red:#C41E3A;--dark:#1a1a1a;--mid:#e0e0e0;--light:#f7f6f4;--white:#fff;
+  --green:#2d7a4f;--amber:#c17b00;--blue:#1a5fa8;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Raleway','Segoe UI',Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--light);color:var(--dark);min-height:100vh;display:grid;grid-template-rows:64px 1fr auto;}
+
+/* HEADER */
+header{background:var(--white);border-bottom:1px solid #e8e8e8;padding:0 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.hlogo{display:flex;align-items:center;gap:14px;}
+.hev{width:34px;height:34px;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--serif);font-weight:700;font-size:.82rem;flex-shrink:0;}
+.hname{font-family:var(--serif);font-size:1rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--dark);}
+.hsub{font-size:.58rem;color:#bbb;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+.hright{display:flex;align-items:center;gap:16px;}
+.hback{font-size:.6rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);text-decoration:none;}
+.hback:hover{text-decoration:underline;}
+.hrole-pill{font-size:.55rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;background:#f0f0f0;color:#888;}
+.hrole-pill.gf{background:#fdf0f2;color:var(--red);}
+.hrole-pill.bo{background:#f0f4ff;color:var(--blue);}
+.hrole-pill.ib{background:#f0faf5;color:var(--green);}
+
+/* LAYOUT */
+.inbox-layout{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - 64px);overflow:hidden;}
+
+/* SIDEBAR */
+.inbox-sidebar{background:var(--white);border-right:1px solid #eee;display:flex;flex-direction:column;overflow:hidden;}
+.sidebar-head{padding:18px 20px 14px;border-bottom:1px solid #f0f0f0;}
+.sidebar-title{font-family:var(--serif);font-size:1.2rem;font-weight:400;color:var(--dark);margin-bottom:10px;}
+.filter-tabs{display:flex;gap:2px;}
+.ftab{flex:1;padding:6px 0;text-align:center;font-size:.58rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:none;background:var(--white);color:#bbb;border-bottom:2px solid #eee;transition:all .2s;font-family:var(--sans);}
+.ftab.active{color:var(--red);border-bottom-color:var(--red);}
+.search-input{width:100%;border:none;border-bottom:1.5px solid #eee;padding:10px 20px;font-size:.78rem;font-family:var(--sans);background:var(--light);color:var(--dark);outline:none;transition:border-color .2s;}
+.search-input:focus{border-bottom-color:var(--red);}
+.ticket-list{flex:1;overflow-y:auto;}
+.ticket-item{padding:14px 20px;border-bottom:1px solid #f5f5f5;cursor:pointer;transition:background .15s;display:grid;grid-template-columns:8px 1fr;gap:10px;align-items:start;}
+.ticket-item:hover{background:#fafafa;}
+.ticket-item.active{background:#fdf5f6;border-left:2px solid var(--red);}
+.ticket-item.done{opacity:.45;}
+.ti-accent{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.ti-body{}
+.ti-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
+.ti-type{font-size:.5rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;}
+.ti-time{font-size:.58rem;color:#ccc;}
+.ti-title{font-size:.8rem;font-weight:600;color:var(--dark);margin-bottom:3px;line-height:1.3;}
+.ti-from{font-size:.65rem;color:#bbb;}
+.ti-badges{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;}
+.badge{font-size:.52rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;}
+.bdg-new{background:#fdf0f2;color:var(--red);}
+.bdg-open{background:#f0f4ff;color:var(--blue);}
+.bdg-done{background:#f5f5f5;color:#bbb;}
+.bdg-prio{background:#fff7ed;color:var(--amber);}
+.sidebar-empty{padding:32px 20px;text-align:center;color:#ccc;font-size:.72rem;}
+
+/* MAIN PANE */
+.inbox-main{display:flex;flex-direction:column;overflow:hidden;background:var(--light);}
+.main-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ccc;gap:12px;}
+.main-empty-icon{font-size:2.5rem;opacity:.4;}
+.main-empty-text{font-size:.75rem;letter-spacing:.5px;}
+.ticket-detail{flex:1;overflow-y:auto;padding:28px 32px;}
+.td-header{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid #eee;}
+.td-eyebrow{font-size:.55rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.td-title{font-family:var(--serif);font-size:1.6rem;font-weight:400;color:var(--dark);letter-spacing:-.3px;margin-bottom:8px;}
+.td-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:.65rem;color:#bbb;}
+.td-meta span{display:flex;align-items:center;gap:4px;}
+.td-body{font-size:.82rem;color:#444;line-height:1.8;margin-bottom:20px;white-space:pre-wrap;}
+.td-fields{background:var(--white);border:1px solid #eee;padding:16px 20px;margin-bottom:20px;}
+.td-field-title{font-size:.55rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#bbb;margin-bottom:10px;}
+.td-field-row{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #fafafa;font-size:.75rem;}
+.td-field-row:last-child{border-bottom:none;}
+.td-field-key{color:#bbb;width:160px;flex-shrink:0;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;}
+.td-field-val{color:var(--dark);font-weight:500;}
+
+/* COMMENTS */
+.comments-section{margin-bottom:20px;}
+.cs-title{font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#bbb;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #eee;}
+.comment-item{display:flex;gap:10px;margin-bottom:14px;}
+.ci-avatar{width:28px;height:28px;background:var(--dark);color:#fff;font-size:.65rem;font-weight:700;font-family:var(--serif);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ci-bubble{background:var(--white);border:1px solid #eee;padding:10px 14px;flex:1;}
+.ci-header{display:flex;justify-content:space-between;margin-bottom:4px;}
+.ci-name{font-size:.68rem;font-weight:700;color:var(--dark);}
+.ci-time{font-size:.6rem;color:#ccc;}
+.ci-text{font-size:.78rem;color:#444;line-height:1.6;}
+.comment-input-wrap{display:flex;gap:10px;align-items:flex-start;}
+.ci-in-avatar{width:28px;height:28px;background:var(--red);color:#fff;font-size:.65rem;font-weight:700;font-family:var(--serif);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.comment-input{flex:1;border:1.5px solid #ddd;padding:10px 12px;font-family:var(--sans);font-size:.78rem;resize:none;min-height:60px;background:var(--white);color:var(--dark);outline:none;transition:border-color .2s;}
+.comment-input:focus{border-color:var(--red);}
+
+/* ACTION BAR */
+.ticket-actions{padding:16px 32px;background:var(--white);border-top:1px solid #eee;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.btn{padding:9px 22px;border:none;font-family:var(--sans);font-size:.6rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--red);color:#fff;}
+.btn-primary:hover{background:#a01830;}
+.btn-secondary{background:#f0f0f0;color:#666;}
+.btn-secondary:hover{background:#e0e0e0;}
+.btn-success{background:var(--green);color:#fff;}
+.btn-success:hover{background:#1e5e38;}
+.btn-outline{background:var(--white);border:1.5px solid #ddd;color:#888;}
+.btn-outline:hover{border-color:var(--red);color:var(--red);}
+.ta-label{font-size:.62rem;color:#bbb;margin-left:auto;}
+
+/* LOADING */
+.loading{padding:32px;text-align:center;color:#ccc;font-size:.72rem;}
+
+/* TYPE COLORS */
+.type-weekly{color:#2d7a4f;} .type-finanz{color:#1a5fa8;} .type-social{color:#9333ea;}
+.type-unterlagen{color:#c17b00;} .type-gebot{color:var(--red);} .type-expose{color:#0891b2;}
+.type-qaa{color:#be185d;} .type-abschluss{color:#059669;} .type-koop{color:#7c3aed;}
+.type-status{color:#dc2626;} .type-umsatz{color:#d97706;}
+
+.dot-weekly{background:#2d7a4f;} .dot-finanz{background:#1a5fa8;} .dot-social{background:#9333ea;}
+.dot-unterlagen{background:#c17b00;} .dot-gebot{background:var(--red);} .dot-expose{background:#0891b2;}
+.dot-qaa{background:#be185d;} .dot-abschluss{background:#059669;} .dot-koop{background:#7c3aed;}
+.dot-status{background:#dc2626;} .dot-umsatz{background:#d97706;}
+
+@media(max-width:700px){
+  .inbox-layout{grid-template-columns:1fr;}
+  .inbox-sidebar{height:50vh;}
+  header{padding:0 16px;}
+}
+</style>
+
+<script>
+// Hide standalone back-links when running inside portal overlay iframe
+if(window.self !== window.top){
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('.hback,a[href="ev-portal.html"]').forEach(function(el){
+      el.style.display='none';
+    });
+  });
+}
+</script>
+</head>
+<body>
+
+<header>
+  <div class="hlogo">
+    <div class="hev">E&amp;V</div>
+    <div>
+      <div class="hname">Engel &amp; Völkers</div>
+      <div class="hsub">Inbox · Mittleres Ruhrgebiet</div>
+    </div>
+  </div>
+  <div class="hright">
+    <span class="hrole-pill" id="rolePill">–</span>
+    <a class="hback" href="ev-portal.html">← Portal</a>
+  </div>
+</header>
+
+<div class="inbox-layout">
+
+  <!-- SIDEBAR -->
+  <div class="inbox-sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-title">Inbox <span id="unreadCount" style="font-size:.7rem;color:#bbb;font-family:var(--sans);font-weight:400;"></span></div>
+      <div class="filter-tabs">
+        <button class="ftab active" onclick="setFilter('open',this)">Offen</button>
+        <button class="ftab" onclick="setFilter('done',this)">Erledigt</button>
+        <button class="ftab" onclick="setFilter('all',this)">Alle</button>
+      </div>
+    </div>
+    <input class="search-input" type="text" placeholder="Suchen …" id="searchField" oninput="renderList()"/>
+    <div class="ticket-list" id="ticketList">
+      <div class="loading">Laden …</div>
+    </div>
+  </div>
+
+  <!-- MAIN PANE -->
+  <div class="inbox-main" id="inboxMain">
+    <div class="main-empty" id="emptyState">
+      <div class="main-empty-icon">📬</div>
+      <div class="main-empty-text">Ticket auswählen</div>
+    </div>
+    <div id="ticketDetail" style="display:none;flex:1;overflow-y:auto;flex-direction:column;">
+      <div class="ticket-detail" id="detailContent"></div>
+      <div class="comments-section" id="commentsSection" style="padding:0 32px 20px;"></div>
+      <div style="padding:0 32px 20px;">
+        <div class="comment-input-wrap">
+          <div class="ci-in-avatar" id="myAvatar">EV</div>
+          <textarea class="comment-input" id="commentInput" placeholder="Kommentar hinzufügen …" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="ticket-actions" id="ticketActions" style="display:none;">
+      <button class="btn btn-outline" onclick="addComment()">💬 Kommentar senden</button>
+      <button class="btn btn-success" id="doneBtn" onclick="markDone()">✓ Als erledigt markieren</button>
+      <button class="btn btn-secondary" onclick="markOpen()">↩ Wieder öffnen</button>
+      <span class="ta-label" id="taLabel"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────
+let TICKETS   = [];
+let COMMENTS  = {};
+let currentId = null;
+let filterMode = 'open';
+let myUser    = {};
+let myRole    = 'ib'; // gf | ib | bo
+
+// Role routing: which ticket types go to which role
+const ROLE_ROUTING = {
+  // IB → GF
+  weekly:    ['gf'],
+  umsatz:    ['gf'],
+  gebot:     ['gf'],
+  koop:      ['gf'],
+  expose:    ['gf'],
+  status:    ['gf'],
+  abschluss: ['gf'],
+  // IB → BO
+  unterlagen:['bo'],
+  qaa:       ['bo'],
+  // Social → GF + BO
+  social:    ['gf','bo'],
+  // Finanzierung → GF
+  finanz:    ['gf'],
+};
+
+const TYPE_LABELS = {
+  weekly:'Weekly Check-In', umsatz:'Umsatzplanung', gebot:'Gebot',
+  koop:'Kooperation', expose:'Exposé-Freigabe', status:'Objektstatus',
+  abschluss:'Objektabschluss', unterlagen:'Unterlagen', qaa:'QAA-Bestellung',
+  social:'Social Media', finanz:'Finanzierung'
+};
+
+// ── INIT ─────────────────────────────────────────────────────────
+(async function(){
+  try {
+    const u = JSON.parse(sessionStorage.getItem('evUser')||'{}');
+    myUser   = u;
+    myRole   = u.role || 'ib';
+    document.getElementById('myAvatar').textContent = u.initials||'EV';
+    const pill = document.getElementById('rolePill');
+    pill.textContent = myRole==='gf'?'Geschäftsführung':myRole==='bo'?'Back-Office':'Immobilienberater';
+    pill.className = 'hrole-pill '+myRole;
+  } catch(_){}
+  await loadTickets();
+})();
+
+// ── LOAD ─────────────────────────────────────────────────────────
+async function loadTickets(){
+  document.getElementById('ticketList').innerHTML = '<div class="loading">Laden …</div>';
+  try {
+    const jwt = EvDB.jwt();
+    if(!jwt){ renderDemoTickets(); return; }
+
+    // Load from all relevant Supabase tables and normalize to tickets
+    const tables = getTablesForRole();
+    const results = await Promise.allSettled(
+      tables.map(t => fetch(
+        `https://pwkoxtyficedetiymgcj.supabase.co/rest/v1/${t}?select=*&order=created_at.desc&limit=100`,
+        {headers:{'apikey':'sb_publishable_fQvTH65W8d6NTxX_KEp3SQ_SVU4YvGV','Authorization':'Bearer '+jwt}}
+      ).then(r=>r.json()).then(rows=>(rows||[]).map(row=>normalizeRow(t,row))))
+    );
+
+    TICKETS = results.flatMap(r=>r.status==='fulfilled'?r.value:[])
+      .sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+
+    // Load comments
+    try {
+      const cr = await fetch(
+        `https://pwkoxtyficedetiymgcj.supabase.co/rest/v1/inbox_comments?select=*&order=created_at.asc`,
+        {headers:{'apikey':'sb_publishable_fQvTH65W8d6NTxX_KEp3SQ_SVU4YvGV','Authorization':'Bearer '+jwt}}
+      );
+      const cRows = await cr.json();
+      (cRows||[]).forEach(c=>{
+        if(!COMMENTS[c.ticket_ref]) COMMENTS[c.ticket_ref]= [];
+        COMMENTS[c.ticket_ref].push(c);
+      });
+    } catch(_){}
+
+    if(TICKETS.length===0) renderDemoTickets();
+    else renderList();
+  } catch(e){
+    console.warn('[Inbox]',e);
+    renderDemoTickets();
+  }
+}
+
+function getTablesForRole(){
+  // GF sees all, BO sees BO-tables, IB sees their own submissions
+  if(myRole==='gf') return ['weekly_checkins','umsatzplanungen','one_gebote','one_kooperationen','one_expose_freigaben','one_statusaenderungen','one_abschluesse','socialmedia_anfragen','finanzierung_anfragen','one_unterlagen_bestellungen','one_qaa_bestellungen'];
+  if(myRole==='bo') return ['one_unterlagen_bestellungen','one_qaa_bestellungen','socialmedia_anfragen'];
+  // IB: own submissions
+  return ['weekly_checkins','umsatzplanungen','one_gebote','one_kooperationen','one_expose_freigaben','one_statusaenderungen','one_abschluesse','one_unterlagen_bestellungen','one_qaa_bestellungen','socialmedia_anfragen','finanzierung_anfragen'];
+}
+
+function normalizeRow(table, row){
+  const typeMap = {
+    weekly_checkins:'weekly', umsatzplanungen:'umsatz',
+    one_gebote:'gebot', one_kooperationen:'koop',
+    one_expose_freigaben:'expose', one_statusaenderungen:'status',
+    one_abschluesse:'abschluss', one_unterlagen_bestellungen:'unterlagen',
+    one_qaa_bestellungen:'qaa', socialmedia_anfragen:'social',
+    finanzierung_anfragen:'finanz'
+  };
+  const type = typeMap[table]||'other';
+  const ref  = table+'_'+row.id;
+
+  // Build title and summary from row data
+  let title = '–', summary = '', from = '';
+  from = row.user_name||row.sender_name||row.berater_name||row.user_email||'Unbekannt';
+
+  if(type==='weekly')   { title=`Weekly KW ${row.kw}/${row.jahr} — ${row.rolle||''}`; summary=`Score: ${row.score_pct||0} % (${row.score_note||''})${(row.offene_punkte||[]).length?' · '+row.offene_punkte.length+' offene Punkte':''}`; }
+  if(type==='umsatz')   { title=`Umsatzplanung ${row.jahr||''} — ${row.modell||''}`; summary=`Jahresumsatz: ${fe(row.jahresumsatz)} · Provision: ${fe(row.provision)}`; }
+  if(type==='gebot')    { title=`Gebot: ${row.gebot_objekt||'–'}`; summary=`Käufer: ${row.gebot_kaeufer||'–'} · Gebot: ${fe(row.gebot_betrag)}`; }
+  if(type==='koop')     { title=`Kooperationsvorschlag: ${row.koop_name||'–'}`; summary=`Art: ${row['sel_koop_art']||'–'} · ${row.koop_branche||''}`; }
+  if(type==='expose')   { title=`Exposé-Freigabe: ${row.exp_adresse||'–'}`; summary=`${row.exp_art||'–'} · ${fe(row.exp_preis)}`; }
+  if(type==='status')   { title=`Objektstatus: ${row.status_adresse||'–'}`; summary=`${row['sel_status_typ']||'–'} · ${row.status_art||''}`; }
+  if(type==='abschluss'){ title=`Abschluss: ${row.abs_adresse||'–'}`; summary=`${row['sel_abs_art']||'–'} · ${fe(row.abs_preis)} · ${row.abs_datum||''}`; }
+  if(type==='unterlagen'){ title=`Unterlagen: ${row.unt_adresse||'–'}`; summary=`Dringlichkeit: ${row['sel_unt_dring']||'–'}`; }
+  if(type==='qaa')      { title=`QAA: ${row.qaa_adresse||'–'}`; summary=`${row.qaa_art||'–'} · ${row.qaa_eg1||''}`; }
+  if(type==='social')   { title=`Social: ${row.beitragsart||'–'}`; summary=`${(row.plattformen||[]).join(', ')||'–'} · ${row.dringlichkeit||''}`; }
+  if(type==='finanz')   { title=`Finanzierung: ${row.obj_adresse||'–'}`; summary=`${row.kn1_name||'–'} · ${fe(row.fin_darlehen)}`; }
+
+  return {
+    id: row.id, ref, type, table, title, summary, from,
+    created_at: row.created_at,
+    status: row.inbox_status||'open',
+    raw: row
+  };
+}
+
+// ── DEMO DATA (no DB entries yet) ────────────────────────────────
+function renderDemoTickets(){
+  TICKETS = [
+    {id:1,ref:'demo_1',type:'weekly',title:'Weekly KW 20/2026 — Immobilienberater/in',summary:'Score: 87 % (Sehr gut)',from:'Julia Steinberg',created_at:new Date(Date.now()-3600000).toISOString(),status:'open',raw:{}},
+    {id:2,ref:'demo_2',type:'gebot',title:'Gebot: Kemnader Str. 12, Bochum',summary:'Käufer: Max Mustermann · Gebot: 395.000 €',from:'Markus Becker',created_at:new Date(Date.now()-7200000).toISOString(),status:'open',raw:{}},
+    {id:3,ref:'demo_3',type:'unterlagen',title:'Unterlagen: Hattingen Stadtmitte',summary:'Grundbuch, Energieausweis, Baulast · Dringend',from:'Petra Winkler',created_at:new Date(Date.now()-86400000).toISOString(),status:'open',raw:{}},
+    {id:4,ref:'demo_4',type:'expose',title:'Exposé-Freigabe: Altenhöfener Str. 7',summary:'ETW · 290.000 € · Flowfact',from:'Lars Schneider',created_at:new Date(Date.now()-172800000).toISOString(),status:'open',raw:{}},
+    {id:5,ref:'demo_5',type:'qaa',title:'QAA: Springorumstr. 44, Bochum',summary:'EFH · Eigentümer: Schmidt, Thomas · 6 Monate',from:'Andreas Müller',created_at:new Date(Date.now()-259200000).toISOString(),status:'open',raw:{}},
+    {id:6,ref:'demo_6',type:'social',title:'Social: Immobilienportrait Instagram',summary:'Instagram, Facebook · Dringend',from:'Nicole Fischer',created_at:new Date(Date.now()-345600000).toISOString(),status:'done',raw:{}},
+    {id:7,ref:'demo_7',type:'koop',title:'Kooperationsvorschlag: Muster Finanzberatung',summary:'Unternehmen · Finanzberater',from:'Stefan Brandt',created_at:new Date(Date.now()-432000000).toISOString(),status:'done',raw:{}},
+    {id:8,ref:'demo_8',type:'finanz',title:'Finanzierung: Querenburg, Bochum',summary:'Max Mustermann · 312.000 € Darlehen',from:'Markus Becker',created_at:new Date(Date.now()-518400000).toISOString(),status:'open',raw:{}},
+  ];
+  renderList();
+}
+
+// ── RENDER LIST ──────────────────────────────────────────────────
+function renderList(){
+  const search = document.getElementById('searchField').value.toLowerCase();
+  const filtered = TICKETS.filter(t=>{
+    if(filterMode==='open' && t.status!=='open')   return false;
+    if(filterMode==='done' && t.status!=='done')   return false;
+    if(search && !t.title.toLowerCase().includes(search) && !t.from.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  const open = TICKETS.filter(t=>t.status==='open').length;
+  document.getElementById('unreadCount').textContent = open ? `(${open} offen)` : '';
+
+  if(!filtered.length){
+    document.getElementById('ticketList').innerHTML = '<div class="sidebar-empty">Keine Einträge gefunden.</div>';
+    return;
+  }
+
+  document.getElementById('ticketList').innerHTML = filtered.map(t=>`
+    <div class="ticket-item${t.status==='done'?' done':''}${t.ref===currentId?' active':''}" onclick="openTicket('${t.ref}')">
+      <div class="ti-accent dot-${t.type}"></div>
+      <div class="ti-body">
+        <div class="ti-header">
+          <span class="ti-type type-${t.type}">${TYPE_LABELS[t.type]||t.type}</span>
+          <span class="ti-time">${timeAgo(t.created_at)}</span>
+        </div>
+        <div class="ti-title">${t.title}</div>
+        <div class="ti-from">von ${t.from}</div>
+        <div class="ti-badges">
+          ${t.status==='open'?'<span class="badge bdg-open">Offen</span>':'<span class="badge bdg-done">Erledigt</span>'}
+          ${COMMENTS[t.ref]?.length?`<span class="badge bdg-new">💬 ${COMMENTS[t.ref].length}</span>`:''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setFilter(f, el){
+  filterMode = f;
+  document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+// ── OPEN TICKET ──────────────────────────────────────────────────
+function openTicket(ref){
+  currentId = ref;
+  const t = TICKETS.find(x=>x.ref===ref);
+  if(!t) return;
+  renderList(); // refresh active state
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('ticketDetail').style.display = 'flex';
+  document.getElementById('ticketActions').style.display = 'flex';
+
+  // Build field table from raw data
+  const raw = t.raw||{};
+  const skip = ['id','created_at','modal_id','inbox_status','user_email'];
+  const fieldRows = Object.entries(raw)
+    .filter(([k,v])=>!skip.includes(k)&&v!==null&&v!==''&&v!==false)
+    .map(([k,v])=>`<div class="td-field-row"><span class="td-field-key">${k.replace(/_/g,' ')}</span><span class="td-field-val">${typeof v==='object'?JSON.stringify(v):v}</span></div>`)
+    .join('');
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="td-header">
+      <div class="td-eyebrow">
+        <span class="type-${t.type}" style="font-weight:700;">${TYPE_LABELS[t.type]||t.type}</span>
+        <span class="badge ${t.status==='open'?'bdg-open':'bdg-done'}">${t.status==='open'?'Offen':'Erledigt'}</span>
+      </div>
+      <div class="td-title">${t.title}</div>
+      <div class="td-meta">
+        <span>👤 ${t.from}</span>
+        <span>🕐 ${new Date(t.created_at).toLocaleString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</span>
+        <span>📋 ${t.ref}</span>
+      </div>
+    </div>
+    <div class="td-body">${t.summary||'–'}</div>
+    ${fieldRows?`<div class="td-fields"><div class="td-field-title">Alle Felder</div>${fieldRows}</div>`:''}
+  `;
+
+  // Render comments
+  const cs = COMMENTS[ref]||[];
+  document.getElementById('commentsSection').innerHTML = `
+    <div class="cs-title">Kommentare (${cs.length})</div>
+    ${cs.map(c=>`<div class="comment-item">
+      <div class="ci-avatar">${(c.author_name||'?').split(' ').map(p=>p[0]||'').join('').substring(0,2).toUpperCase()}</div>
+      <div class="ci-bubble">
+        <div class="ci-header"><span class="ci-name">${c.author_name||'–'}</span><span class="ci-time">${timeAgo(c.created_at)}</span></div>
+        <div class="ci-text">${c.body||''}</div>
+      </div>
+    </div>`).join('')}
+  `;
+
+  // Update action bar
+  document.getElementById('taLabel').textContent = `Eingegangen: ${new Date(t.created_at).toLocaleString('de-DE')}`;
+  document.getElementById('doneBtn').style.display = t.status==='done'?'none':'flex';
+  document.querySelector('[onclick="markOpen()"]').style.display = t.status==='done'?'flex':'none';
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────────
+async function markDone(){
+  const t = TICKETS.find(x=>x.ref===currentId);
+  if(!t) return;
+  t.status = 'done';
+  await saveInboxStatus(t, 'done');
+  renderList();
+  openTicket(currentId);
+}
+
+async function markOpen(){
+  const t = TICKETS.find(x=>x.ref===currentId);
+  if(!t) return;
+  t.status = 'open';
+  await saveInboxStatus(t, 'open');
+  renderList();
+  openTicket(currentId);
+}
+
+async function addComment(){
+  const body = document.getElementById('commentInput').value.trim();
+  if(!body) return;
+  const comment = {
+    ticket_ref:  currentId,
+    author_name: myUser.fullName||'Unbekannt',
+    author_email:myUser.email||'',
+    body,
+    created_at:  new Date().toISOString()
+  };
+  if(!COMMENTS[currentId]) COMMENTS[currentId]=[];
+  COMMENTS[currentId].push(comment);
+  document.getElementById('commentInput').value = '';
+
+  // Save to Supabase
+  try {
+    const jwt = EvDB.jwt();
+    if(jwt){
+      await fetch('https://pwkoxtyficedetiymgcj.supabase.co/rest/v1/inbox_comments',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':'sb_publishable_fQvTH65W8d6NTxX_KEp3SQ_SVU4YvGV','Authorization':'Bearer '+jwt,'Prefer':'return=minimal'},
+        body: JSON.stringify(comment)
+      });
+    }
+  } catch(e){ console.warn('[Inbox comment]',e); }
+
+  openTicket(currentId);
+}
+
+async function saveInboxStatus(ticket, status){
+  try {
+    const jwt = EvDB.jwt();
+    if(!jwt) return;
+    // Update in the original table
+    await fetch(`https://pwkoxtyficedetiymgcj.supabase.co/rest/v1/${ticket.table}?id=eq.${ticket.id}`,{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json','apikey':'sb_publishable_fQvTH65W8d6NTxX_KEp3SQ_SVU4YvGV','Authorization':'Bearer '+jwt,'Prefer':'return=minimal'},
+      body: JSON.stringify({inbox_status: status})
+    });
+  } catch(e){ console.warn('[Inbox status]',e); }
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function timeAgo(d){
+  if(!d) return '–';
+  const diff = (Date.now()-new Date(d).getTime())/1000;
+  if(diff<60)   return 'Gerade eben';
+  if(diff<3600) return Math.round(diff/60)+' Min.';
+  if(diff<86400)return Math.round(diff/3600)+' Std.';
+  if(diff<604800)return Math.round(diff/86400)+' Tage';
+  return new Date(d).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});
+}
+function fe(v){ return v?(parseFloat(v)||0).toLocaleString('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:0}):'–'; }
+</script>
+</body>
+</html>

@@ -1551,6 +1551,17 @@ body {padding-top:0;}
 }
 .topbar-back:hover {background:rgba(204,9,47,0.06);}
 </style>
+
+<script>
+// Hide standalone back-links when running inside portal overlay iframe
+if(window.self !== window.top){
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('.hback,a[href="ev-portal.html"]').forEach(function(el){
+      el.style.display='none';
+    });
+  });
+}
+</script>
 </head>
 <body>
 
@@ -2805,7 +2816,7 @@ function openCheckout() {
   $('#modalBackdrop [data-action="submit-order"]').addEventListener('click', submitOrder);
 }
 
-function submitOrder() {
+async function submitOrder() {
   const total = getCartTotal();
   const budgetRemaining = state.user.budget.total - state.user.budget.used;
   const overBudget = total > budgetRemaining;

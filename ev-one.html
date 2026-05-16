@@ -170,6 +170,17 @@ textarea:focus{border-color:var(--red);background:var(--white);}
   .btn{justify-content:center;}
 }
 </style>
+
+<script>
+// Hide standalone back-links when running inside portal overlay iframe
+if(window.self !== window.top){
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('.hback,a[href="ev-portal.html"]').forEach(function(el){
+      el.style.display='none';
+    });
+  });
+}
+</script>
 </head>
 <body>
 
@@ -1024,6 +1035,18 @@ textarea:focus{border-color:var(--red);background:var(--white);}
 </footer>
 
 <script>
+// ── HASH ROUTING — direkt Modal öffnen via URL-Hash ─────────────
+(function(){
+  const hash = window.location.hash.replace('#','');
+  const validModals = ['gebot','kooperation','qaa','expose','status','abschluss','unterlagen'];
+  if(hash && validModals.includes(hash)){
+    // Wait for DOM then open modal
+    window.addEventListener('load', function(){
+      setTimeout(()=>{ openModal(hash); }, 300);
+    });
+  }
+})();
+
 // ── SESSION USER ─────────────────────────────────────────────────
 (function(){
   try {
